@@ -122,6 +122,27 @@ impl Loan {
         
     }
 
+    pub fn get_total_interest_and_principal_paid_by_month(&self, month: u32, with_points: bool) -> (f64, f64) {
+        let months: Vec<u32> = (1..=month).collect();
+        let payments: Vec<Payment> = months
+            .iter()
+            .map(|&i| {
+                let payment = match self.get_payment_breakdown_for_month(i, with_points) {
+                    Ok(p) => p,
+                    Err(e) => panic!("{}", e.error)
+                };
+                payment
+            })
+            .collect();
+
+        payments
+            .iter()
+            .fold((0.0, 0.0), |acc, p| {
+                (acc.0 + p.interest_payment, acc.1 + p.principal_payment)
+            })
+
+    }
+
     pub fn get_total_payment_each_month(&self, with_points: bool) -> Option<f64> {
         let month = match self.term {
             Term::ThiryYears => 360,
