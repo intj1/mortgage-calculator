@@ -136,6 +136,14 @@ npm test           # component/engine unit tests (vitest)
   component.
 - Signal-driven form: sliders and number inputs stay in perfect two-way sync,
   with debounced recalculation and mobile-friendly (`touch-action`) sliders.
+- **Pin &amp; compare** — freeze the current loan as a baseline, tweak inputs,
+  and watch live deltas for payment, total interest, payoff time and total cost.
+- **Real calendar dates** — set the first-payment month to see the payoff date
+  ("Aug 2056"), dated schedule rows, and a dated CSV.
+- **Affordability solver** — enter a target all-in monthly budget and get the
+  max home price that fits (with one click to apply it).
+- **Biweekly quick-set** — one click adds the "13th payment" equivalent
+  (P&amp;I ÷ 12) as a monthly extra payment.
 - **Shareable scenarios** — loan inputs are encoded in the URL
   (`?hp=500000&r=5.5&x=300`), a Share button copies the link, and the last
   scenario is restored from `localStorage` on the next visit.

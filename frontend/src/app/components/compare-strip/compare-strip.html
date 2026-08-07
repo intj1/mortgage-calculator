@@ -1,0 +1,26 @@
+<div class="strip card">
+  <div class="strip__head">
+    <span class="strip__title">⚑ Compared to pinned scenario</span>
+    <button type="button" class="strip__unpin" (click)="unpin.emit()">✕ Unpin</button>
+  </div>
+
+  <div class="strip__rows">
+    @for (r of rows(); track r.label) {
+      <div class="row">
+        <span class="row__label">{{ r.label }}</span>
+        <span class="row__vals numeric">
+          <span class="row__pinned">{{ r.pinned }}</span>
+          <span class="row__arrow">→</span>
+          <span class="row__current">{{ r.current }}</span>
+        </span>
+        <span
+          class="row__delta numeric"
+          [class.row__delta--better]="r.delta < 0"
+          [class.row__delta--worse]="r.delta > 0"
+        >
+          {{ r.delta === 0 ? '—' : r.deltaText }}
+        </span>
+      </div>
+    }
+  </div>
+</div>

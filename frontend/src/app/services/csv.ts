@@ -1,9 +1,10 @@
 /** CSV export of the amortization schedule. */
 
-import { Payment } from '../models/mortgage.models';
+import { Payment, monthLabel } from '../models/mortgage.models';
 
 const HEADERS = [
   'month',
+  'date',
   'total_payment',
   'principal',
   'interest',
@@ -16,10 +17,11 @@ const HEADERS = [
 ] as const;
 
 /** Render the schedule as CSV text (2-decimal dollar values). */
-export function scheduleToCsv(schedule: Payment[]): string {
+export function scheduleToCsv(schedule: Payment[], startMonth = ''): string {
   const rows = schedule.map((p) =>
     [
       p.month,
+      monthLabel(startMonth, p.month - 1) ?? '',
       p.total_payment.toFixed(2),
       p.principal.toFixed(2),
       p.interest.toFixed(2),
@@ -35,8 +37,10 @@ export function scheduleToCsv(schedule: Payment[]): string {
 }
 
 /** Trigger a browser download of the schedule as amortization.csv. */
-export function downloadScheduleCsv(schedule: Payment[]): void {
-  const blob = new Blob([scheduleToCsv(schedule)], { type: 'text/csv;charset=utf-8' });
+export function downloadScheduleCsv(schedule: Payment[], startMonth = ''): void {
+  const blob = new Blob([scheduleToCsv(schedule, startMonth)], {
+    type: 'text/csv;charset=utf-8',
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

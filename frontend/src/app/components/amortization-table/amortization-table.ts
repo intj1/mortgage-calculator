@@ -1,7 +1,7 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 
-import { MortgageResult, Payment } from '../../models/mortgage.models';
+import { MortgageResult, Payment, monthLabel } from '../../models/mortgage.models';
 import { downloadScheduleCsv } from '../../services/csv';
 
 type View = 'yearly' | 'monthly';
@@ -24,6 +24,8 @@ interface Row {
 })
 export class AmortizationTableComponent {
   readonly result = input.required<MortgageResult>();
+  /** 'YYYY-MM' of the first payment; enables calendar-date labels. */
+  readonly startMonth = input<string>('');
 
   readonly view = signal<View>('yearly');
 
@@ -32,7 +34,7 @@ export class AmortizationTableComponent {
   }
 
   exportCsv(): void {
-    downloadScheduleCsv(this.result().schedule);
+    downloadScheduleCsv(this.result().schedule, this.startMonth());
   }
 
   readonly rows = computed<Row[]>(() => {
@@ -43,8 +45,9 @@ export class AmortizationTableComponent {
   });
 
   private monthlyRow(p: Payment): Row {
+    const date = monthLabel(this.startMonth(), p.month - 1);
     return {
-      label: `Month ${p.month}`,
+      label: date ? `${date} · #${p.month}` : `Month ${p.month}`,
       principal: p.principal,
       interest: p.interest,
       extra: p.extra_principal,

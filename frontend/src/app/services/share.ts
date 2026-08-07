@@ -17,6 +17,7 @@ const PARAM_KEYS: ReadonlyArray<[param: string, key: keyof FormModel]> = [
   ['hoa', 'hoaMonthly'],
   ['pmi', 'pmiRatePercent'],
   ['x', 'extraMonthlyPayment'],
+  ['sd', 'startMonth'],
 ];
 
 const STORAGE_KEY = 'mc-form';
