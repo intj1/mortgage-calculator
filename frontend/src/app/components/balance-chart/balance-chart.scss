@@ -25,6 +25,7 @@
 }
 .key__line--balance { background: var(--c-principal); }
 .key__line--interest { background: var(--c-interest); }
+.key__line--baseline { background: var(--text-subtle); }
 
 .chart__svg {
   width: 100%;
@@ -56,6 +57,24 @@
 .line--interest {
   stroke: var(--c-interest);
   stroke-dasharray: 5 4;
+}
+.line--baseline {
+  stroke: var(--text-subtle);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+}
+
+.payoff-line {
+  stroke: var(--c-extra);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.payoff-label {
+  fill: var(--c-extra);
+  font-size: 10px;
+  font-weight: 600;
+  text-anchor: end;
+  transform: translateX(-5px);
 }
 
 .crosshair {

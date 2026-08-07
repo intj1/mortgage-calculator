@@ -11,19 +11,13 @@ import {
   MortgageResult,
   MortgageSummary,
   Payment,
-  Term,
+  monthlyPI,
+  termMonths,
 } from '../models/mortgage.models';
 
 const RATE_REDUCTION_PER_POINT = 0.0025;
 const COST_PER_POINT = 0.01;
 const PMI_LTV_THRESHOLD = 0.8;
-
-function termMonths(term: Term): number {
-  if (term === 'thirty_years') return 360;
-  if (term === 'fifteen_years') return 180;
-  if (term === 'ten_years') return 120;
-  return term.custom;
-}
 
 function loanAmount(input: MortgageInput): number {
   return input.home_price - input.down_payment;
@@ -34,12 +28,7 @@ function effectiveAnnualRate(input: MortgageInput): number {
 }
 
 function monthlyPrincipalAndInterest(input: MortgageInput): number {
-  const n = termMonths(input.term);
-  const monthlyRate = effectiveAnnualRate(input) / 12;
-  const amount = loanAmount(input);
-  if (monthlyRate === 0) return amount / n;
-  const compound = Math.pow(1 + monthlyRate, n);
-  return (amount * (monthlyRate * compound)) / (compound - 1);
+  return monthlyPI(loanAmount(input), effectiveAnnualRate(input), termMonths(input.term));
 }
 
 function buildSchedule(input: MortgageInput): Payment[] {

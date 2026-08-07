@@ -1,5 +1,9 @@
 <div class="head">
   <h2 class="head__title">Amortization schedule</h2>
+  <div class="head__actions">
+    <button type="button" class="csv-btn" (click)="exportCsv()" title="Download the monthly schedule as CSV">
+      ⬇ CSV
+    </button>
   <div class="toggle" role="group" aria-label="Schedule granularity">
     <button
       type="button"
@@ -13,6 +17,7 @@
       [class.toggle__btn--active]="view() === 'monthly'"
       (click)="setView('monthly')"
     >Monthly</button>
+  </div>
   </div>
 </div>
 

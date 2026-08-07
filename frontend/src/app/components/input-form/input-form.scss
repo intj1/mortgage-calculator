@@ -130,6 +130,11 @@
   background: var(--bg-sunken);
   outline: none;
   cursor: pointer;
+  /* Dragging the thumb on touch devices must not scroll the page. */
+  touch-action: none;
+}
+.slider:focus-visible {
+  box-shadow: 0 0 0 3px var(--brand-soft);
 }
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;

@@ -72,6 +72,27 @@
   background: var(--c-interest);
 }
 
+.share-btn {
+  height: 40px;
+  padding: 0 0.9rem;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.share-btn:hover {
+  background: var(--bg-sunken);
+}
+.share-btn--copied {
+  border-color: var(--c-extra);
+  color: var(--c-extra);
+}
+
 .icon-btn {
   width: 40px;
   height: 40px;

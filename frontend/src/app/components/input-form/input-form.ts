@@ -1,18 +1,12 @@
 import {
   Component,
-  OnInit,
   OnDestroy,
+  computed,
   input,
+  linkedSignal,
   output,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 
 import { FormModel } from '../../models/mortgage.models';
 
@@ -27,18 +21,28 @@ interface FieldConfig {
   hint?: string;
 }
 
+/**
+ * The loan input panel. A single signal holds the form state and both the
+ * slider and the number box of each field render from it, so moving either
+ * control immediately updates the other (two controls bound to one reactive
+ * FormControl do NOT sync view-to-view, which is why this component avoids
+ * reactive forms).
+ */
 @Component({
   selector: 'app-input-form',
   standalone: true,
-  imports: [ReactiveFormsModule, DecimalPipe],
+  imports: [DecimalPipe],
   templateUrl: './input-form.html',
   styleUrl: './input-form.scss',
 })
-export class InputFormComponent implements OnInit, OnDestroy {
+export class InputFormComponent implements OnDestroy {
   /** Initial values for the form. */
   readonly initial = input.required<FormModel>();
   /** Emits a debounced snapshot whenever any field changes. */
   readonly valueChange = output<FormModel>();
+
+  /** Single source of truth for every field; resets if `initial` changes. */
+  readonly model = linkedSignal(() => this.initial());
 
   readonly termOptions = [30, 15, 10];
 
@@ -55,61 +59,46 @@ export class InputFormComponent implements OnInit, OnDestroy {
     { key: 'extraMonthlyPayment', label: 'Extra payment / mo', min: 0, max: 5_000, step: 50, kind: 'currency' },
   ];
 
-  form!: FormGroup;
-  private sub?: Subscription;
+  /** Percentage of the home price currently covered by the down payment. */
+  readonly downPaymentPercent = computed(() => {
+    const m = this.model();
+    return m.homePrice > 0 ? (m.downPayment / m.homePrice) * 100 : 0;
+  });
 
-  constructor(private readonly fb: FormBuilder) {}
-
-  ngOnInit(): void {
-    const v = this.initial();
-    this.form = this.fb.group({
-      homePrice: [v.homePrice],
-      downPayment: [v.downPayment],
-      ratePercent: [v.ratePercent],
-      termYears: [v.termYears],
-      points: [v.points],
-      propertyTaxAnnual: [v.propertyTaxAnnual],
-      homeInsuranceAnnual: [v.homeInsuranceAnnual],
-      hoaMonthly: [v.hoaMonthly],
-      pmiRatePercent: [v.pmiRatePercent],
-      extraMonthlyPayment: [v.extraMonthlyPayment],
-    });
-
-    this.sub = this.form.valueChanges
-      .pipe(debounceTime(120))
-      .subscribe(() => this.valueChange.emit(this.snapshot()));
-  }
+  private emitTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnDestroy(): void {
-    this.sub?.unsubscribe();
+    if (this.emitTimer !== null) clearTimeout(this.emitTimer);
   }
 
-  /** Percentage of the home price currently covered by the down payment. */
-  get downPaymentPercent(): number {
-    const price = this.form.get('homePrice')!.value || 0;
-    const down = this.form.get('downPayment')!.value || 0;
-    return price > 0 ? (down / price) * 100 : 0;
+  value(key: keyof FormModel): number {
+    return this.model()[key];
+  }
+
+  /** The down-payment slider is capped at the current home price. */
+  sliderMax(f: FieldConfig): number {
+    return f.key === 'downPayment'
+      ? Math.min(f.max, this.model().homePrice)
+      : f.max;
+  }
+
+  onInput(key: keyof FormModel, event: Event): void {
+    const el = event.target as HTMLInputElement;
+    const n = el.valueAsNumber;
+    this.patch({ [key]: Number.isFinite(n) ? n : 0 });
   }
 
   setTerm(years: number): void {
-    this.form.get('termYears')!.setValue(years);
+    this.patch({ termYears: years });
   }
 
-  private snapshot(): FormModel {
-    const raw = this.form.getRawValue();
-    // Coerce to numbers (range/number inputs can yield strings).
-    const num = (x: unknown) => Number(x) || 0;
-    return {
-      homePrice: num(raw.homePrice),
-      downPayment: Math.min(num(raw.downPayment), num(raw.homePrice)),
-      ratePercent: num(raw.ratePercent),
-      termYears: num(raw.termYears),
-      points: num(raw.points),
-      propertyTaxAnnual: num(raw.propertyTaxAnnual),
-      homeInsuranceAnnual: num(raw.homeInsuranceAnnual),
-      hoaMonthly: num(raw.hoaMonthly),
-      pmiRatePercent: num(raw.pmiRatePercent),
-      extraMonthlyPayment: num(raw.extraMonthlyPayment),
-    };
+  private patch(partial: Partial<FormModel>): void {
+    this.model.update((m) => {
+      const next = { ...m, ...partial };
+      next.downPayment = Math.min(next.downPayment, next.homePrice);
+      return next;
+    });
+    if (this.emitTimer !== null) clearTimeout(this.emitTimer);
+    this.emitTimer = setTimeout(() => this.valueChange.emit(this.model()), 120);
   }
 }

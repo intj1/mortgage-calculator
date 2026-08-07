@@ -19,6 +19,16 @@
         {{ source() === 'backend' ? 'Rust API' : 'Local engine' }}
       </span>
 
+      <button
+        type="button"
+        class="share-btn"
+        [class.share-btn--copied]="copied()"
+        (click)="copyShareLink()"
+        title="Copy a link to this exact scenario"
+      >
+        {{ copied() ? '✓ Copied' : '⎘ Share' }}
+      </button>
+
       <button type="button" class="icon-btn" (click)="toggleTheme()" aria-label="Toggle theme">
         {{ theme.theme() === 'dark' ? '☀' : '☾' }}
       </button>

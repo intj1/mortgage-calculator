@@ -11,6 +11,28 @@
 .head__title {
   font-size: 1.05rem;
 }
+.head__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.csv-btn {
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 0.32rem 0.7rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.csv-btn:hover {
+  background: var(--bg-sunken);
+  color: var(--text);
+}
 
 .toggle {
   display: inline-flex;

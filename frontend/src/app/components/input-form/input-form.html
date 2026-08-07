@@ -1,4 +1,4 @@
-<form [formGroup]="form" class="form">
+<form class="form" (submit)="$event.preventDefault()">
   <h2 class="form__title">Loan details</h2>
 
   <div class="term">
@@ -8,7 +8,7 @@
         <button
           type="button"
           class="term__btn"
-          [class.term__btn--active]="form.get('termYears')!.value === opt"
+          [class.term__btn--active]="model().termYears === opt"
           (click)="setTerm(opt)"
         >
           {{ opt }}<span class="term__unit">yr</span>
@@ -26,10 +26,11 @@
           <input
             [id]="f.key"
             type="number"
-            [formControlName]="f.key"
             [min]="f.min"
-            [max]="f.max"
+            [max]="sliderMax(f)"
             [step]="f.step"
+            [value]="value(f.key)"
+            (input)="onInput(f.key, $event)"
             class="numeric"
           />
           @if (f.kind === 'percent') { <span class="adorn adorn--suffix">%</span> }
@@ -39,16 +40,17 @@
       <input
         type="range"
         class="slider"
-        [formControlName]="f.key"
         [min]="f.min"
-        [max]="f.max"
+        [max]="sliderMax(f)"
         [step]="f.step"
+        [value]="value(f.key)"
+        (input)="onInput(f.key, $event)"
         [attr.aria-label]="f.label"
       />
 
       <div class="field__meta">
         @if (f.key === 'downPayment') {
-          <span class="field__hint">{{ downPaymentPercent | number: '1.0-1' }}% down</span>
+          <span class="field__hint">{{ downPaymentPercent() | number: '1.0-1' }}% down</span>
         } @else if (f.hint) {
           <span class="field__hint">{{ f.hint }}</span>
         } @else {

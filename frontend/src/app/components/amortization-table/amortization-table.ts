@@ -2,6 +2,7 @@ import { Component, computed, input, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 
 import { MortgageResult, Payment } from '../../models/mortgage.models';
+import { downloadScheduleCsv } from '../../services/csv';
 
 type View = 'yearly' | 'monthly';
 
@@ -28,6 +29,10 @@ export class AmortizationTableComponent {
 
   setView(v: View): void {
     this.view.set(v);
+  }
+
+  exportCsv(): void {
+    downloadScheduleCsv(this.result().schedule);
   }
 
   readonly rows = computed<Row[]>(() => {
