@@ -8,20 +8,18 @@ import { AmortizationTableComponent } from './components/amortization-table/amor
 
 import { MortgageService } from './services/mortgage.service';
 import { ThemeService } from './services/theme.service';
-import { FormModel, MortgageResult, formToInput } from './models/mortgage.models';
-
-const DEFAULT_FORM: FormModel = {
-  homePrice: 747_500,
-  downPayment: 75_000,
-  ratePercent: 6.75,
-  termYears: 30,
-  points: 0,
-  propertyTaxAnnual: 8_400,
-  homeInsuranceAnnual: 2_100,
-  hoaMonthly: 0,
-  pmiRatePercent: 0.5,
-  extraMonthlyPayment: 0,
-};
+import {
+  decodeShareParams,
+  encodeShareParams,
+  loadSavedForm,
+  saveForm,
+} from './services/share';
+import {
+  DEFAULT_FORM,
+  FormModel,
+  MortgageResult,
+  formToInput,
+} from './models/mortgage.models';
 
 @Component({
   selector: 'app-root',
@@ -40,23 +38,58 @@ export class App {
   private readonly mortgage = inject(MortgageService);
   readonly theme = inject(ThemeService);
 
-  readonly initialForm = DEFAULT_FORM;
+  /** Priority: shared URL > last saved scenario > defaults. */
+  readonly initialForm: FormModel =
+    decodeShareParams(location.search) ?? loadSavedForm() ?? DEFAULT_FORM;
+
+  readonly currentForm = signal<FormModel>(this.initialForm);
   readonly result = signal<MortgageResult | null>(null);
   readonly computing = signal(false);
+  readonly copied = signal(false);
 
   readonly source = this.mortgage.source;
   readonly backendOnline = this.mortgage.backendOnline;
 
+  private copyTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor() {
-    void this.recalculate(DEFAULT_FORM);
+    void this.recalculate(this.initialForm);
   }
 
   async onFormChange(form: FormModel): Promise<void> {
+    this.currentForm.set(form);
+    saveForm(form);
+    this.syncUrl(form);
     await this.recalculate(form);
   }
 
   toggleTheme(): void {
     this.theme.toggle();
+  }
+
+  /** Copy a shareable link for the current scenario to the clipboard. */
+  async copyShareLink(): Promise<void> {
+    const url = this.shareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Clipboard API unavailable (http, permissions) — fall back to prompt.
+      window.prompt('Copy this link:', url);
+    }
+    this.copied.set(true);
+    if (this.copyTimer !== null) clearTimeout(this.copyTimer);
+    this.copyTimer = setTimeout(() => this.copied.set(false), 1600);
+  }
+
+  private shareUrl(): string {
+    const query = encodeShareParams(this.currentForm());
+    return location.origin + location.pathname + (query ? `?${query}` : '');
+  }
+
+  /** Keep the address bar in sync so refresh/bookmark preserves the scenario. */
+  private syncUrl(form: FormModel): void {
+    const query = encodeShareParams(form);
+    history.replaceState(null, '', location.pathname + (query ? `?${query}` : ''));
   }
 
   private async recalculate(form: FormModel): Promise<void> {

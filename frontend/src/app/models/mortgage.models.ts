@@ -63,6 +63,26 @@ export interface MortgageResult {
   schedule: Payment[];
 }
 
+/** Number of monthly payments in a term. */
+export function termMonths(term: Term): number {
+  if (term === 'thirty_years') return 360;
+  if (term === 'fifteen_years') return 180;
+  if (term === 'ten_years') return 120;
+  return term.custom;
+}
+
+/**
+ * The classic amortization formula: fixed monthly principal-and-interest
+ * payment for a loan of `amount` at annual rate `annualRate` over `months`.
+ */
+export function monthlyPI(amount: number, annualRate: number, months: number): number {
+  if (months <= 0) return 0;
+  const monthlyRate = annualRate / 12;
+  if (monthlyRate === 0) return amount / months;
+  const compound = Math.pow(1 + monthlyRate, months);
+  return (amount * (monthlyRate * compound)) / (compound - 1);
+}
+
 /** Convenience: a friendly form model the UI binds to (rates in percent). */
 export interface FormModel {
   homePrice: number;
@@ -75,6 +95,44 @@ export interface FormModel {
   hoaMonthly: number;
   pmiRatePercent: number;
   extraMonthlyPayment: number;
+}
+
+export const DEFAULT_FORM: FormModel = {
+  homePrice: 747_500,
+  downPayment: 75_000,
+  ratePercent: 6.75,
+  termYears: 30,
+  points: 0,
+  propertyTaxAnnual: 8_400,
+  homeInsuranceAnnual: 2_100,
+  hoaMonthly: 0,
+  pmiRatePercent: 0.5,
+  extraMonthlyPayment: 0,
+};
+
+/**
+ * Coerce an untrusted partial (URL params, localStorage) into a valid
+ * FormModel: numbers only, non-negative, down payment capped at home price.
+ */
+export function sanitizeForm(raw: Partial<Record<keyof FormModel, unknown>>): FormModel {
+  const num = (v: unknown, fallback: number): number => {
+    const n = typeof v === 'string' ? Number(v) : (v as number);
+    return typeof n === 'number' && Number.isFinite(n) && n >= 0 ? n : fallback;
+  };
+  const form: FormModel = {
+    homePrice: num(raw.homePrice, DEFAULT_FORM.homePrice),
+    downPayment: num(raw.downPayment, DEFAULT_FORM.downPayment),
+    ratePercent: num(raw.ratePercent, DEFAULT_FORM.ratePercent),
+    termYears: num(raw.termYears, DEFAULT_FORM.termYears),
+    points: num(raw.points, DEFAULT_FORM.points),
+    propertyTaxAnnual: num(raw.propertyTaxAnnual, DEFAULT_FORM.propertyTaxAnnual),
+    homeInsuranceAnnual: num(raw.homeInsuranceAnnual, DEFAULT_FORM.homeInsuranceAnnual),
+    hoaMonthly: num(raw.hoaMonthly, DEFAULT_FORM.hoaMonthly),
+    pmiRatePercent: num(raw.pmiRatePercent, DEFAULT_FORM.pmiRatePercent),
+    extraMonthlyPayment: num(raw.extraMonthlyPayment, DEFAULT_FORM.extraMonthlyPayment),
+  };
+  form.downPayment = Math.min(form.downPayment, form.homePrice);
+  return form;
 }
 
 export function formToInput(f: FormModel): MortgageInput {

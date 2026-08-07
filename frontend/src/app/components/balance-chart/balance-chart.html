@@ -2,6 +2,9 @@
   <div class="chart__legend">
     <span class="key"><i class="key__line key__line--balance"></i>Remaining balance</span>
     <span class="key"><i class="key__line key__line--interest"></i>Cumulative interest</span>
+    @if (hasBaseline()) {
+      <span class="key"><i class="key__line key__line--baseline"></i>Without extra payments</span>
+    }
   </div>
 
   <svg
@@ -40,8 +43,19 @@
 
     <!-- Series -->
     <path [attr.d]="balanceArea()" fill="url(#balanceFill)" />
+    @if (hasBaseline()) {
+      <path [attr.d]="baselineLine()" class="line line--baseline" />
+    }
     <path [attr.d]="balanceLine()" class="line line--balance" />
     <path [attr.d]="interestLine()" class="line line--interest" />
+
+    <!-- Early payoff marker -->
+    @if (payoffMarker(); as pm) {
+      <line [attr.x1]="pm.x" [attr.x2]="pm.x" [attr.y1]="pad.top" [attr.y2]="baseline" class="payoff-line" />
+      <text [attr.x]="pm.x" [attr.y]="pad.top + 10" class="payoff-label">
+        paid off · mo {{ pm.month }}
+      </text>
+    }
 
     <!-- Hover crosshair + markers -->
     @if (hover(); as h) {

@@ -88,3 +88,36 @@
 .dot--principal { background: #ffffff; }
 .dot--escrow { background: #c7f9f4; }
 .dot--pmi { background: #ffd0d9; }
+.dot--extra { background: #c9f7d6; }
+
+/* Rate sensitivity mini-table */
+.sens {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
+}
+.sens__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: 0.82rem;
+}
+.sens__rate {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.sens__pi {
+  color: var(--text);
+  font-weight: 650;
+  text-align: right;
+}
+.sens__diff {
+  color: var(--text-subtle);
+  font-size: 0.75rem;
+  width: 4.2rem;
+  text-align: right;
+}
+.sens__diff--up { color: var(--c-interest); }
+.sens__diff--down { color: var(--c-extra); }

@@ -15,6 +15,10 @@
         <span><i class="dot dot--pmi"></i>PMI
           {{ summary().first_month_pmi | currency: 'USD':'symbol':'1.0-0' }}</span>
       }
+      @if (result().input.extra_monthly_payment > 0) {
+        <span><i class="dot dot--extra"></i>Extra
+          {{ result().input.extra_monthly_payment | currency: 'USD':'symbol':'1.0-0' }}</span>
+      }
     </div>
   </div>
 
@@ -57,11 +61,48 @@
       <span class="stat__value numeric">{{ summary().interest_saved | currency: 'USD':'symbol':'1.0-0' }}</span>
       <span class="stat__sub">from your extra payments</span>
     </div>
-  } @else if (summary().points_cost > 0) {
+  }
+
+  @if (summary().total_pmi > 0) {
     <div class="stat card">
-      <span class="stat__label">Points cost</span>
-      <span class="stat__value numeric">{{ summary().points_cost | currency: 'USD':'symbol':'1.0-0' }}</span>
-      <span class="stat__sub">paid up front</span>
+      <span class="stat__label">Total PMI</span>
+      <span class="stat__value numeric">{{ summary().total_pmi | currency: 'USD':'symbol':'1.0-0' }}</span>
+      <span class="stat__sub">
+        ends after month {{ pmiEndMonth() }} (~{{ (pmiEndMonth() / 12) | number: '1.0-1' }}y)
+      </span>
     </div>
   }
+
+  @if (pointsBreakEven(); as be) {
+    <div class="stat card">
+      <span class="stat__label">Points break-even</span>
+      <span class="stat__value numeric">
+        {{ be.years }}<span class="unit">y</span>
+        @if (be.remMonths) { {{ be.remMonths }}<span class="unit">m</span> }
+      </span>
+      <span class="stat__sub" [class.stat__sub--good]="be.worthIt">
+        saves {{ be.monthlySavings | currency: 'USD':'symbol':'1.0-0' }}/mo after
+        {{ summary().points_cost | currency: 'USD':'symbol':'1.0-0' }} upfront
+      </span>
+    </div>
+  }
+
+  <div class="stat card">
+    <span class="stat__label">If rates were ±0.5%</span>
+    <div class="sens">
+      @for (s of rateSensitivity(); track s.deltaPercent) {
+        <div class="sens__row">
+          <span class="sens__rate numeric">{{ s.rate | percent: '1.2-2' }}</span>
+          <span class="sens__pi numeric">{{ s.pi | currency: 'USD':'symbol':'1.0-0' }}/mo</span>
+          <span
+            class="sens__diff numeric"
+            [class.sens__diff--up]="s.diff > 0"
+            [class.sens__diff--down]="s.diff < 0"
+          >
+            {{ s.diff > 0 ? '+' : '' }}{{ s.diff | currency: 'USD':'symbol':'1.0-0' }}
+          </span>
+        </div>
+      }
+    </div>
+  </div>
 </div>

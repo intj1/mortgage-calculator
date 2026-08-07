@@ -134,8 +134,16 @@ npm test           # component/engine unit tests (vitest)
 - **Angular 22**, standalone components and signals throughout — no NgModules.
 - **Template, styles and logic are split** into separate files for every
   component.
-- Reactive form with linked sliders + number inputs, debounced recalculation.
+- Signal-driven form: sliders and number inputs stay in perfect two-way sync,
+  with debounced recalculation and mobile-friendly (`touch-action`) sliders.
+- **Shareable scenarios** — loan inputs are encoded in the URL
+  (`?hp=500000&r=5.5&x=300`), a Share button copies the link, and the last
+  scenario is restored from `localStorage` on the next visit.
+- Insight cards: PMI end month, **discount-points break-even** time, and a
+  **rate-sensitivity** (±0.5%) comparison.
 - Hand-built **SVG charts** (no charting dependency): a payment-breakdown donut
-  and an interactive balance/interest curve with a hover crosshair.
+  and an interactive balance/interest curve with hover crosshair, an early
+  **payoff marker**, and a dashed **"without extra payments" baseline** overlay.
+- **CSV export** of the full monthly amortization schedule.
 - Light/dark theme with system-preference detection, persisted to
   `localStorage`.
