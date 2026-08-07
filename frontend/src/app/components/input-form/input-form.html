@@ -17,6 +17,17 @@
     </div>
   </div>
 
+  <div class="term">
+    <label class="term__label" for="startMonth">First payment</label>
+    <input
+      id="startMonth"
+      type="month"
+      class="month-input"
+      [value]="model().startMonth"
+      (input)="onStartMonth($event)"
+    />
+  </div>
+
   @for (f of fields; track f.key) {
     <div class="field">
       <div class="field__head">
@@ -51,6 +62,10 @@
       <div class="field__meta">
         @if (f.key === 'downPayment') {
           <span class="field__hint">{{ downPaymentPercent() | number: '1.0-1' }}% down</span>
+        } @else if (f.key === 'extraMonthlyPayment') {
+          <button type="button" class="quick-set" (click)="applyBiweekly()">
+            ≈ biweekly plan: +{{ biweeklyExtra() | currency: 'USD':'symbol':'1.0-0' }}/mo
+          </button>
         } @else if (f.hint) {
           <span class="field__hint">{{ f.hint }}</span>
         } @else {
@@ -59,4 +74,34 @@
       </div>
     </div>
   }
+
+  <div class="afford">
+    <span class="afford__title">Fit my budget</span>
+    <div class="afford__row">
+      <div class="field__input">
+        <span class="adorn">$</span>
+        <input
+          id="targetPayment"
+          type="number"
+          min="0"
+          step="100"
+          [value]="targetPayment()"
+          (input)="onTargetPayment($event)"
+          class="numeric"
+          aria-label="Target monthly payment"
+        />
+        <span class="adorn adorn--suffix">/mo</span>
+      </div>
+      @if (maxPrice(); as mp) {
+        <button type="button" class="afford__apply" (click)="applyMaxPrice()">
+          → {{ mp | currency: 'USD':'symbol':'1.0-0' }}
+        </button>
+      } @else {
+        <span class="afford__none">over budget</span>
+      }
+    </div>
+    <span class="field__hint">
+      max home price for that all-in payment, keeping your other inputs — click to apply
+    </span>
+  </div>
 </form>

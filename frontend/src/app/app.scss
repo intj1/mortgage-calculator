@@ -92,6 +92,11 @@
   border-color: var(--c-extra);
   color: var(--c-extra);
 }
+.share-btn--pinned {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--brand-soft);
+}
 
 .icon-btn {
   width: 40px;

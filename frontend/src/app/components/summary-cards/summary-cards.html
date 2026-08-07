@@ -1,4 +1,4 @@
-<div class="grid">
+<div class="grid" aria-live="polite">
   <div class="hero card">
     <span class="hero__label">Estimated monthly payment</span>
     <span class="hero__value numeric">
@@ -45,6 +45,7 @@
     <span class="stat__value numeric">
       {{ payoff().years }}<span class="unit">y</span>
       @if (payoff().months) { {{ payoff().months }}<span class="unit">m</span> }
+      @if (payoffDate(); as pd) { <span class="payoff-date">· {{ pd }}</span> }
     </span>
     @if (hasExtra()) {
       <span class="stat__sub stat__sub--good">

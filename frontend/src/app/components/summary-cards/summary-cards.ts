@@ -3,6 +3,7 @@ import { CurrencyPipe, DecimalPipe, PercentPipe } from '@angular/common';
 
 import {
   MortgageResult,
+  monthLabel,
   monthlyPI,
   termMonths,
 } from '../../models/mortgage.models';
@@ -18,8 +19,15 @@ const RATE_REDUCTION_PER_POINT = 0.0025;
 })
 export class SummaryCardsComponent {
   readonly result = input.required<MortgageResult>();
+  /** 'YYYY-MM' of the first payment; enables calendar-date labels. */
+  readonly startMonth = input<string>('');
 
   readonly summary = computed(() => this.result().summary);
+
+  /** "Mar 2049" — the calendar month of the final payment, when known. */
+  readonly payoffDate = computed(() =>
+    monthLabel(this.startMonth(), this.summary().payoff_month - 1),
+  );
 
   /** Years and months representation of the payoff month. */
   readonly payoff = computed(() => {

@@ -16,9 +16,15 @@ describe('share link codec', () => {
       hoaMonthly: 150,
       pmiRatePercent: 0.6,
       extraMonthlyPayment: 250,
+      startMonth: '2027-03',
     };
     const decoded = decodeShareParams('?' + encodeShareParams(form));
     expect(decoded).toEqual(form);
+  });
+
+  it('rejects a malformed start month', () => {
+    const decoded = decodeShareParams('?sd=not-a-month&r=7');
+    expect(decoded!.startMonth).toBe(DEFAULT_FORM.startMonth);
   });
 
   it('omits default values to keep URLs short', () => {

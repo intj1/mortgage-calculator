@@ -95,6 +95,8 @@ export interface FormModel {
   hoaMonthly: number;
   pmiRatePercent: number;
   extraMonthlyPayment: number;
+  /** First payment month as 'YYYY-MM' (display only — not sent to the engine). */
+  startMonth: string;
 }
 
 export const DEFAULT_FORM: FormModel = {
@@ -108,7 +110,23 @@ export const DEFAULT_FORM: FormModel = {
   hoaMonthly: 0,
   pmiRatePercent: 0.5,
   extraMonthlyPayment: 0,
+  startMonth: new Date().toISOString().slice(0, 7),
 };
+
+const START_MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Human label ("Mar 2049") for the calendar month `offset` months after
+ * `startMonth`, or null when startMonth is not a valid 'YYYY-MM'.
+ * Payment month 1 corresponds to offset 0.
+ */
+export function monthLabel(startMonth: string, offset: number): string | null {
+  const m = START_MONTH_RE.exec(startMonth);
+  if (!m) return null;
+  const total = Number(startMonth.slice(0, 4)) * 12 + (Number(startMonth.slice(5, 7)) - 1) + offset;
+  return `${MONTH_NAMES[((total % 12) + 12) % 12]} ${Math.floor(total / 12)}`;
+}
 
 /**
  * Coerce an untrusted partial (URL params, localStorage) into a valid
@@ -130,6 +148,10 @@ export function sanitizeForm(raw: Partial<Record<keyof FormModel, unknown>>): Fo
     hoaMonthly: num(raw.hoaMonthly, DEFAULT_FORM.hoaMonthly),
     pmiRatePercent: num(raw.pmiRatePercent, DEFAULT_FORM.pmiRatePercent),
     extraMonthlyPayment: num(raw.extraMonthlyPayment, DEFAULT_FORM.extraMonthlyPayment),
+    startMonth:
+      typeof raw.startMonth === 'string' && START_MONTH_RE.test(raw.startMonth)
+        ? raw.startMonth
+        : DEFAULT_FORM.startMonth,
   };
   form.downPayment = Math.min(form.downPayment, form.homePrice);
   return form;

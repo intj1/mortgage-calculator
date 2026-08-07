@@ -56,6 +56,78 @@
   box-shadow: var(--shadow-sm);
 }
 
+.month-input {
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.32rem 0.55rem;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  outline: none;
+  color-scheme: inherit;
+}
+.month-input:focus-visible {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+/* Quick-set link-style button (biweekly) */
+.quick-set {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--brand);
+  cursor: pointer;
+  text-align: left;
+}
+.quick-set:hover {
+  text-decoration: underline;
+}
+
+/* Affordability solver */
+.afford {
+  border-top: 1px dashed var(--border);
+  padding-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.afford__title {
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: var(--text);
+}
+.afford__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.afford__apply {
+  border: 1px solid var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand);
+  font: inherit;
+  font-weight: 650;
+  font-size: 0.85rem;
+  padding: 0.32rem 0.7rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.afford__apply:hover {
+  background: var(--brand);
+  color: #fff;
+}
+.afford__none {
+  font-size: 0.8rem;
+  color: var(--c-pmi);
+  font-weight: 600;
+}
+
 /* Individual field */
 .field {
   display: flex;

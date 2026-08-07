@@ -5,6 +5,7 @@ import { SummaryCardsComponent } from './components/summary-cards/summary-cards'
 import { BreakdownChartComponent } from './components/breakdown-chart/breakdown-chart';
 import { BalanceChartComponent } from './components/balance-chart/balance-chart';
 import { AmortizationTableComponent } from './components/amortization-table/amortization-table';
+import { CompareStripComponent } from './components/compare-strip/compare-strip';
 
 import { MortgageService } from './services/mortgage.service';
 import { ThemeService } from './services/theme.service';
@@ -30,6 +31,7 @@ import {
     BreakdownChartComponent,
     BalanceChartComponent,
     AmortizationTableComponent,
+    CompareStripComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -46,6 +48,8 @@ export class App {
   readonly result = signal<MortgageResult | null>(null);
   readonly computing = signal(false);
   readonly copied = signal(false);
+  /** Frozen baseline scenario for side-by-side comparison. */
+  readonly pinned = signal<MortgageResult | null>(null);
 
   readonly source = this.mortgage.source;
   readonly backendOnline = this.mortgage.backendOnline;
@@ -65,6 +69,16 @@ export class App {
 
   toggleTheme(): void {
     this.theme.toggle();
+  }
+
+  /** Freeze the current scenario as the comparison baseline. */
+  pinScenario(): void {
+    const current = this.result();
+    if (current) this.pinned.set(current);
+  }
+
+  unpinScenario(): void {
+    this.pinned.set(null);
   }
 
   /** Copy a shareable link for the current scenario to the clipboard. */
