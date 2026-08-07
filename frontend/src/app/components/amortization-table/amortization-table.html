@@ -1,0 +1,44 @@
+<div class="head">
+  <h2 class="head__title">Amortization schedule</h2>
+  <div class="toggle" role="group" aria-label="Schedule granularity">
+    <button
+      type="button"
+      class="toggle__btn"
+      [class.toggle__btn--active]="view() === 'yearly'"
+      (click)="setView('yearly')"
+    >Yearly</button>
+    <button
+      type="button"
+      class="toggle__btn"
+      [class.toggle__btn--active]="view() === 'monthly'"
+      (click)="setView('monthly')"
+    >Monthly</button>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="left">Period</th>
+        <th>Principal</th>
+        <th>Interest</th>
+        <th>Extra</th>
+        <th>PMI</th>
+        <th>Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of rows(); track r.label) {
+        <tr>
+          <td class="left">{{ r.label }}</td>
+          <td class="numeric">{{ r.principal | currency: 'USD':'symbol':'1.0-0' }}</td>
+          <td class="numeric">{{ r.interest | currency: 'USD':'symbol':'1.0-0' }}</td>
+          <td class="numeric muted">{{ r.extra | currency: 'USD':'symbol':'1.0-0' }}</td>
+          <td class="numeric muted">{{ r.pmi | currency: 'USD':'symbol':'1.0-0' }}</td>
+          <td class="numeric strong">{{ r.balance | currency: 'USD':'symbol':'1.0-0' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

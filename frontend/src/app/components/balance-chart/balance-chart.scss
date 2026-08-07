@@ -1,0 +1,110 @@
+:host {
+  display: block;
+}
+
+.chart {
+  position: relative;
+}
+
+.chart__legend {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.key__line {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+.key__line--balance { background: var(--c-principal); }
+.key__line--interest { background: var(--c-interest); }
+
+.chart__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: none;
+}
+
+.grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.axis-label {
+  fill: var(--text-subtle);
+  font-size: 10px;
+}
+.axis-label--y { text-anchor: end; }
+.axis-label--x { text-anchor: middle; }
+
+.line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.line--balance { stroke: var(--c-principal); }
+.line--interest {
+  stroke: var(--c-interest);
+  stroke-dasharray: 5 4;
+}
+
+.crosshair {
+  stroke: var(--text-subtle);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.marker {
+  stroke: var(--bg-elevated);
+  stroke-width: 2;
+}
+.marker--balance { fill: var(--c-principal); }
+.marker--interest { fill: var(--c-interest); }
+
+.tooltip {
+  position: absolute;
+  top: 2.2rem;
+  right: 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  pointer-events: none;
+  min-width: 168px;
+}
+.tooltip__month {
+  color: var(--text-subtle);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.tooltip__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+}
+.tooltip__row b {
+  margin-left: auto;
+  color: var(--text);
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.dot--balance { background: var(--c-principal); }
+.dot--interest { background: var(--c-interest); }

@@ -1,0 +1,33 @@
+<div class="donut">
+  <svg viewBox="0 0 160 160" class="donut__svg" role="img" aria-label="Payment breakdown">
+    <g transform="rotate(-90 80 80)">
+      <circle cx="80" cy="80" [attr.r]="radius" class="donut__track" />
+      @for (s of segments(); track s.label) {
+        <circle
+          cx="80"
+          cy="80"
+          [attr.r]="radius"
+          class="donut__seg"
+          [attr.stroke]="s.color"
+          [attr.stroke-dasharray]="s.dash + ' ' + (circumference - s.dash)"
+          [attr.stroke-dashoffset]="s.offset"
+        />
+      }
+    </g>
+    <text x="80" y="74" class="donut__center-label">monthly</text>
+    <text x="80" y="94" class="donut__center-value">
+      {{ total() | currency: 'USD':'symbol':'1.0-0' }}
+    </text>
+  </svg>
+
+  <ul class="legend">
+    @for (s of segments(); track s.label) {
+      <li class="legend__item">
+        <span class="legend__swatch" [style.background]="s.color"></span>
+        <span class="legend__label">{{ s.label }}</span>
+        <span class="legend__val numeric">{{ s.value | currency: 'USD':'symbol':'1.0-0' }}</span>
+        <span class="legend__pct numeric">{{ s.fraction | percent: '1.0-0' }}</span>
+      </li>
+    }
+  </ul>
+</div>

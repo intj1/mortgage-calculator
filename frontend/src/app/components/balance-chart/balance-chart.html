@@ -1,0 +1,67 @@
+<div class="chart">
+  <div class="chart__legend">
+    <span class="key"><i class="key__line key__line--balance"></i>Remaining balance</span>
+    <span class="key"><i class="key__line key__line--interest"></i>Cumulative interest</span>
+  </div>
+
+  <svg
+    [attr.viewBox]="viewBox"
+    class="chart__svg"
+    (pointermove)="onMove($event)"
+    (pointerleave)="onLeave()"
+    role="img"
+    aria-label="Balance and cumulative interest over time"
+  >
+    <defs>
+      <linearGradient id="balanceFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--c-principal)" stop-opacity="0.35" />
+        <stop offset="100%" stop-color="var(--c-principal)" stop-opacity="0.02" />
+      </linearGradient>
+    </defs>
+
+    <!-- Y gridlines + labels -->
+    @for (t of yTicks(); track t.value) {
+      <line
+        [attr.x1]="pad.left" [attr.x2]="pad.left + plotW"
+        [attr.y1]="t.y" [attr.y2]="t.y"
+        class="grid"
+      />
+      <text [attr.x]="pad.left - 8" [attr.y]="t.y + 3" class="axis-label axis-label--y">
+        {{ t.value | currency: 'USD':'symbol':'1.0-0' }}
+      </text>
+    }
+
+    <!-- X axis year labels -->
+    @for (t of xTicks(); track t.label) {
+      <text [attr.x]="t.x" [attr.y]="baseline + 18" class="axis-label axis-label--x">
+        {{ t.label }}
+      </text>
+    }
+
+    <!-- Series -->
+    <path [attr.d]="balanceArea()" fill="url(#balanceFill)" />
+    <path [attr.d]="balanceLine()" class="line line--balance" />
+    <path [attr.d]="interestLine()" class="line line--interest" />
+
+    <!-- Hover crosshair + markers -->
+    @if (hover(); as h) {
+      <line [attr.x1]="h.x" [attr.x2]="h.x" [attr.y1]="pad.top" [attr.y2]="baseline" class="crosshair" />
+      <circle [attr.cx]="h.x" [attr.cy]="h.balanceY" r="4" class="marker marker--balance" />
+      <circle [attr.cx]="h.x" [attr.cy]="h.interestY" r="4" class="marker marker--interest" />
+    }
+  </svg>
+
+  @if (hover(); as h) {
+    <div class="tooltip">
+      <span class="tooltip__month">Month {{ h.month }} · {{ (h.month / 12) | number: '1.1-1' }}y</span>
+      <span class="tooltip__row">
+        <i class="dot dot--balance"></i>Balance
+        <b class="numeric">{{ h.balance | currency: 'USD':'symbol':'1.0-0' }}</b>
+      </span>
+      <span class="tooltip__row">
+        <i class="dot dot--interest"></i>Interest paid
+        <b class="numeric">{{ h.interest | currency: 'USD':'symbol':'1.0-0' }}</b>
+      </span>
+    </div>
+  }
+</div>

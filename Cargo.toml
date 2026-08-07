@@ -1,9 +1,30 @@
 [package]
 name = "mortgage_calculator"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
+description = "A mortgage amortization engine with a CLI and a REST API"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "mortgage_calculator"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mortgage-calc"
+path = "src/main.rs"
+
+[[bin]]
+name = "server"
+path = "src/bin/server.rs"
 
 [dependencies]
-tabled = {git = "https://github.com/zhiburt/tabled.git"}
+tabled = "0.17"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Server-only dependencies
+axum = "0.7"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net"] }
+tower-http = { version = "0.6", features = ["cors"] }
+
+# CLI-only dependency
+clap = { version = "4", features = ["derive"] }
