@@ -1,0 +1,84 @@
+:host {
+  display: block;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+.head__title {
+  font-size: 1.05rem;
+}
+
+.toggle {
+  display: inline-flex;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+}
+.toggle__btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.toggle__btn--active {
+  background: var(--brand);
+  color: #fff;
+}
+
+.table-wrap {
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-sunken);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: right;
+  padding: 0.6rem 0.9rem;
+  white-space: nowrap;
+  z-index: 1;
+}
+.table th.left {
+  text-align: left;
+}
+.table td {
+  text-align: right;
+  padding: 0.5rem 0.9rem;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+}
+.table td.left {
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 550;
+}
+.table tbody tr:hover td {
+  background: var(--brand-soft);
+}
+.muted {
+  color: var(--text-subtle);
+}
+.strong {
+  font-weight: 650;
+}

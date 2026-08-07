@@ -1,0 +1,60 @@
+<form [formGroup]="form" class="form">
+  <h2 class="form__title">Loan details</h2>
+
+  <div class="term">
+    <span class="term__label">Term</span>
+    <div class="term__group" role="group" aria-label="Loan term in years">
+      @for (opt of termOptions; track opt) {
+        <button
+          type="button"
+          class="term__btn"
+          [class.term__btn--active]="form.get('termYears')!.value === opt"
+          (click)="setTerm(opt)"
+        >
+          {{ opt }}<span class="term__unit">yr</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @for (f of fields; track f.key) {
+    <div class="field">
+      <div class="field__head">
+        <label class="field__label" [attr.for]="f.key">{{ f.label }}</label>
+        <div class="field__input">
+          @if (f.kind === 'currency') { <span class="adorn">$</span> }
+          <input
+            [id]="f.key"
+            type="number"
+            [formControlName]="f.key"
+            [min]="f.min"
+            [max]="f.max"
+            [step]="f.step"
+            class="numeric"
+          />
+          @if (f.kind === 'percent') { <span class="adorn adorn--suffix">%</span> }
+        </div>
+      </div>
+
+      <input
+        type="range"
+        class="slider"
+        [formControlName]="f.key"
+        [min]="f.min"
+        [max]="f.max"
+        [step]="f.step"
+        [attr.aria-label]="f.label"
+      />
+
+      <div class="field__meta">
+        @if (f.key === 'downPayment') {
+          <span class="field__hint">{{ downPaymentPercent | number: '1.0-1' }}% down</span>
+        } @else if (f.hint) {
+          <span class="field__hint">{{ f.hint }}</span>
+        } @else {
+          <span></span>
+        }
+      </div>
+    </div>
+  }
+</form>

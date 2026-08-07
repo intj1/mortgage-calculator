@@ -1,0 +1,67 @@
+<div class="grid">
+  <div class="hero card">
+    <span class="hero__label">Estimated monthly payment</span>
+    <span class="hero__value numeric">
+      {{ summary().first_month_total_payment | currency: 'USD':'symbol':'1.0-0' }}
+    </span>
+    <div class="hero__break">
+      <span><i class="dot dot--principal"></i>P&amp;I
+        {{ summary().monthly_principal_and_interest | currency: 'USD':'symbol':'1.0-0' }}</span>
+      @if (summary().monthly_escrow > 0) {
+        <span><i class="dot dot--escrow"></i>Escrow
+          {{ summary().monthly_escrow | currency: 'USD':'symbol':'1.0-0' }}</span>
+      }
+      @if (summary().first_month_pmi > 0) {
+        <span><i class="dot dot--pmi"></i>PMI
+          {{ summary().first_month_pmi | currency: 'USD':'symbol':'1.0-0' }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="stat card">
+    <span class="stat__label">Loan amount</span>
+    <span class="stat__value numeric">{{ summary().loan_amount | currency: 'USD':'symbol':'1.0-0' }}</span>
+    <span class="stat__sub">{{ summary().origination_ltv | percent: '1.0-1' }} LTV</span>
+  </div>
+
+  <div class="stat card">
+    <span class="stat__label">Total interest</span>
+    <span class="stat__value numeric">{{ summary().total_interest | currency: 'USD':'symbol':'1.0-0' }}</span>
+    <span class="stat__sub">{{ summary().effective_annual_rate | percent: '1.2-3' }} effective rate</span>
+  </div>
+
+  <div class="stat card">
+    <span class="stat__label">Total of all payments</span>
+    <span class="stat__value numeric">{{ summary().total_of_payments | currency: 'USD':'symbol':'1.0-0' }}</span>
+    <span class="stat__sub">over the life of the loan</span>
+  </div>
+
+  <div class="stat card">
+    <span class="stat__label">Payoff time</span>
+    <span class="stat__value numeric">
+      {{ payoff().years }}<span class="unit">y</span>
+      @if (payoff().months) { {{ payoff().months }}<span class="unit">m</span> }
+    </span>
+    @if (hasExtra()) {
+      <span class="stat__sub stat__sub--good">
+        {{ saved().years }}y {{ saved().months }}m sooner
+      </span>
+    } @else {
+      <span class="stat__sub">no extra payments</span>
+    }
+  </div>
+
+  @if (summary().interest_saved > 0) {
+    <div class="stat card card--accent">
+      <span class="stat__label">Interest saved</span>
+      <span class="stat__value numeric">{{ summary().interest_saved | currency: 'USD':'symbol':'1.0-0' }}</span>
+      <span class="stat__sub">from your extra payments</span>
+    </div>
+  } @else if (summary().points_cost > 0) {
+    <div class="stat card">
+      <span class="stat__label">Points cost</span>
+      <span class="stat__value numeric">{{ summary().points_cost | currency: 'USD':'symbol':'1.0-0' }}</span>
+      <span class="stat__sub">paid up front</span>
+    </div>
+  }
+</div>
