@@ -4,47 +4,54 @@ import { firstValueFrom } from 'rxjs';
 
 import { MortgageInput, MortgageResult } from '../models/mortgage.models';
 import { calculateLocally } from './local-engine';
+import { calculateWithWasm, loadWasmEngine } from './wasm-engine';
 
 /** Where the computation came from, surfaced in the UI. */
-export type ComputeSource = 'backend' | 'local';
+export type ComputeSource = 'wasm' | 'backend' | 'local';
 
 /**
- * Talks to the Rust API (`POST /api/calculate`). If the backend is unreachable
- * it transparently falls back to the local TypeScript engine so the app always
- * produces a result. The active source is exposed as a signal for the UI.
+ * Computes mortgage results with a three-tier engine chain:
+ *
+ *   1. The real Rust engine compiled to WebAssembly (engine.wasm) — fastest,
+ *      works offline, and is byte-for-byte the same crate as the backend.
+ *   2. The Rust REST API (`POST /api/calculate`) when wasm isn't available
+ *      (e.g. `ng serve` without a wasm build).
+ *   3. A TypeScript mirror of the engine as the last resort.
+ *
+ * The active source is exposed as a signal for the UI badge.
  */
 @Injectable({ providedIn: 'root' })
 export class MortgageService {
-  /** Reflects whether the last calculation used the backend or the local engine. */
-  readonly source = signal<ComputeSource>('backend');
-  /** True once we have confirmed the backend is reachable at least once. */
-  readonly backendOnline = signal<boolean>(false);
+  /** Which engine produced the last result. */
+  readonly source = signal<ComputeSource>('local');
+  /** True once any Rust engine (wasm or HTTP) has responded. */
+  readonly rustEngineActive = signal<boolean>(false);
 
   constructor(private readonly http: HttpClient) {
-    this.pingBackend();
-  }
-
-  private async pingBackend(): Promise<void> {
-    try {
-      await firstValueFrom(this.http.get('/api/health'));
-      this.backendOnline.set(true);
-    } catch {
-      this.backendOnline.set(false);
-    }
+    // Warm the wasm module so the first calculation doesn't pay the fetch.
+    void loadWasmEngine();
   }
 
   async calculate(input: MortgageInput): Promise<MortgageResult> {
+    try {
+      const result = await calculateWithWasm(input);
+      this.source.set('wasm');
+      this.rustEngineActive.set(true);
+      return result;
+    } catch {
+      /* fall through to HTTP */
+    }
+
     try {
       const result = await firstValueFrom(
         this.http.post<MortgageResult>('/api/calculate', input),
       );
       this.source.set('backend');
-      this.backendOnline.set(true);
+      this.rustEngineActive.set(true);
       return result;
     } catch {
-      // Backend down or returned an error; compute locally instead.
       this.source.set('local');
-      this.backendOnline.set(false);
+      this.rustEngineActive.set(false);
       return calculateLocally(input);
     }
   }

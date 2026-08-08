@@ -133,27 +133,33 @@ export function monthLabel(startMonth: string, offset: number): string | null {
  * FormModel: numbers only, non-negative, down payment capped at home price.
  */
 export function sanitizeForm(raw: Partial<Record<keyof FormModel, unknown>>): FormModel {
-  const num = (v: unknown, fallback: number): number => {
+  // Hard upper bounds. These matter for hostile share URLs: e.g. ty=999999
+  // would otherwise amortize a twelve-million-month schedule and freeze the
+  // tab. Values are clamped, not rejected, so slightly-out-of-range links
+  // still open.
+  const num = (v: unknown, fallback: number, max: number): number => {
     const n = typeof v === 'string' ? Number(v) : (v as number);
-    return typeof n === 'number' && Number.isFinite(n) && n >= 0 ? n : fallback;
+    if (typeof n !== 'number' || !Number.isFinite(n) || n < 0) return fallback;
+    return Math.min(n, max);
   };
   const form: FormModel = {
-    homePrice: num(raw.homePrice, DEFAULT_FORM.homePrice),
-    downPayment: num(raw.downPayment, DEFAULT_FORM.downPayment),
-    ratePercent: num(raw.ratePercent, DEFAULT_FORM.ratePercent),
-    termYears: num(raw.termYears, DEFAULT_FORM.termYears),
-    points: num(raw.points, DEFAULT_FORM.points),
-    propertyTaxAnnual: num(raw.propertyTaxAnnual, DEFAULT_FORM.propertyTaxAnnual),
-    homeInsuranceAnnual: num(raw.homeInsuranceAnnual, DEFAULT_FORM.homeInsuranceAnnual),
-    hoaMonthly: num(raw.hoaMonthly, DEFAULT_FORM.hoaMonthly),
-    pmiRatePercent: num(raw.pmiRatePercent, DEFAULT_FORM.pmiRatePercent),
-    extraMonthlyPayment: num(raw.extraMonthlyPayment, DEFAULT_FORM.extraMonthlyPayment),
+    homePrice: num(raw.homePrice, DEFAULT_FORM.homePrice, 100_000_000),
+    downPayment: num(raw.downPayment, DEFAULT_FORM.downPayment, 100_000_000),
+    ratePercent: num(raw.ratePercent, DEFAULT_FORM.ratePercent, 30),
+    termYears: num(raw.termYears, DEFAULT_FORM.termYears, 50),
+    points: num(raw.points, DEFAULT_FORM.points, 10),
+    propertyTaxAnnual: num(raw.propertyTaxAnnual, DEFAULT_FORM.propertyTaxAnnual, 10_000_000),
+    homeInsuranceAnnual: num(raw.homeInsuranceAnnual, DEFAULT_FORM.homeInsuranceAnnual, 10_000_000),
+    hoaMonthly: num(raw.hoaMonthly, DEFAULT_FORM.hoaMonthly, 100_000),
+    pmiRatePercent: num(raw.pmiRatePercent, DEFAULT_FORM.pmiRatePercent, 10),
+    extraMonthlyPayment: num(raw.extraMonthlyPayment, DEFAULT_FORM.extraMonthlyPayment, 1_000_000),
     startMonth:
       typeof raw.startMonth === 'string' && START_MONTH_RE.test(raw.startMonth)
         ? raw.startMonth
         : DEFAULT_FORM.startMonth,
   };
   form.downPayment = Math.min(form.downPayment, form.homePrice);
+  if (form.termYears === 0) form.termYears = DEFAULT_FORM.termYears;
   return form;
 }
 

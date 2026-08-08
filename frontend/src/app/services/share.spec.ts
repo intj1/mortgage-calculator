@@ -53,6 +53,18 @@ describe('sanitizeForm', () => {
     expect(form.downPayment).toBe(100_000);
   });
 
+  it('clamps hostile magnitudes so schedules stay bounded', () => {
+    // ty=999999 in a URL previously produced a 12-million-month schedule.
+    const form = sanitizeForm({ termYears: 999_999, homePrice: 1e15, ratePercent: 9_999 });
+    expect(form.termYears).toBe(50);
+    expect(form.homePrice).toBe(100_000_000);
+    expect(form.ratePercent).toBe(30);
+  });
+
+  it('replaces a zero-year term with the default', () => {
+    expect(sanitizeForm({ termYears: 0 }).termYears).toBe(DEFAULT_FORM.termYears);
+  });
+
   it('rejects negatives and non-numbers', () => {
     const form = sanitizeForm({ ratePercent: -1, hoaMonthly: 'xyz' });
     expect(form.ratePercent).toBe(DEFAULT_FORM.ratePercent);

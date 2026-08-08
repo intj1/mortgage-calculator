@@ -352,7 +352,12 @@ impl Loan {
 
     /// A high-level summary of the whole loan.
     pub fn summary(&self) -> MortgageSummary {
-        let schedule = self.amortization_schedule();
+        self.summary_from(&self.amortization_schedule())
+    }
+
+    /// Summary computed from an already-built schedule (avoids re-amortizing
+    /// when the caller needs both, as `MortgageResult::from_loan` does).
+    fn summary_from(&self, schedule: &[Payment]) -> MortgageSummary {
         let total_interest = schedule.iter().map(|p| p.interest).sum();
         let total_pmi = schedule.iter().map(|p| p.pmi).sum();
         let total_escrow = schedule.iter().map(|p| p.escrow).sum();
@@ -439,10 +444,11 @@ pub struct MortgageResult {
 
 impl MortgageResult {
     pub fn from_loan(loan: &Loan) -> Self {
+        let schedule = loan.amortization_schedule();
         MortgageResult {
             input: loan.input().clone(),
-            summary: loan.summary(),
-            schedule: loan.amortization_schedule(),
+            summary: loan.summary_from(&schedule),
+            schedule,
         }
     }
 }

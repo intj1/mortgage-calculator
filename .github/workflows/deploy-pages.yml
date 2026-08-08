@@ -7,6 +7,9 @@ on:
     branches: [master]
     paths:
       - 'frontend/**'
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
@@ -35,6 +38,15 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+
+      # The site runs the real Rust engine in the browser: build the crate to
+      # WebAssembly and ship it as a static asset the SPA loads at runtime.
+      - name: Build Rust engine to WebAssembly
+        working-directory: ${{ github.workspace }}
+        run: |
+          rustup target add wasm32-unknown-unknown
+          cargo build --lib --release --target wasm32-unknown-unknown
+          cp target/wasm32-unknown-unknown/release/mortgage_calculator.wasm frontend/public/engine.wasm
 
       - name: Install dependencies
         run: npm ci
