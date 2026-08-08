@@ -19,10 +19,14 @@
 
   <div class="term">
     <label class="term__label" for="startMonth">First payment</label>
+    <!-- Browsers without a month picker (e.g. Firefox desktop) degrade this
+         to a text input; the placeholder + pattern keep it usable there. -->
     <input
       id="startMonth"
       type="month"
       class="month-input"
+      placeholder="YYYY-MM"
+      pattern="\d{4}-\d{2}"
       [value]="model().startMonth"
       (input)="onStartMonth($event)"
     />

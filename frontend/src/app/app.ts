@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 
 import { InputFormComponent } from './components/input-form/input-form';
 import { SummaryCardsComponent } from './components/summary-cards/summary-cards';
@@ -52,7 +52,18 @@ export class App {
   readonly pinned = signal<MortgageResult | null>(null);
 
   readonly source = this.mortgage.source;
-  readonly backendOnline = this.mortgage.backendOnline;
+  readonly rustEngineActive = this.mortgage.rustEngineActive;
+
+  readonly sourceLabel = computed(() => {
+    switch (this.source()) {
+      case 'wasm':
+        return 'Rust WASM';
+      case 'backend':
+        return 'Rust API';
+      default:
+        return 'Local engine';
+    }
+  });
 
   private copyTimer: ReturnType<typeof setTimeout> | null = null;
 

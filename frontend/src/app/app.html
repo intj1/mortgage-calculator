@@ -11,12 +11,16 @@
     <div class="topbar__actions">
       <span
         class="status"
-        [class.status--online]="backendOnline()"
-        [class.status--offline]="!backendOnline()"
-        [title]="backendOnline() ? 'Connected to the Rust API' : 'Using the in-browser fallback engine'"
+        [class.status--online]="rustEngineActive()"
+        [class.status--offline]="!rustEngineActive()"
+        [title]="source() === 'wasm'
+          ? 'Running the real Rust engine, compiled to WebAssembly, in your browser'
+          : source() === 'backend'
+            ? 'Connected to the Rust API'
+            : 'Using the TypeScript fallback engine'"
       >
         <i class="status__dot"></i>
-        {{ source() === 'backend' ? 'Rust API' : 'Local engine' }}
+        {{ sourceLabel() }}
       </span>
 
       <button

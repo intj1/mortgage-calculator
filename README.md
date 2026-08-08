@@ -41,9 +41,19 @@ validated up front, so bad data yields a clear error instead of a panic.
    always produces a result
 ```
 
-The Rust crate is the source of truth. The Angular app calls the API and, if the
-backend is offline, transparently falls back to a TypeScript port of the same
-engine (`frontend/src/app/services/local-engine.ts`) so the UI always works.
+The Rust crate is the source of truth — and the browser runs it directly. The
+crate compiles to WebAssembly (`cargo build --lib --release --target
+wasm32-unknown-unknown`, ~116 kB) with a tiny hand-rolled C ABI
+(`src/wasm.rs`, no wasm-bindgen) that passes JSON through linear memory. The
+Angular app tries engines in order:
+
+1. **Rust WASM** (`engine.wasm`, fetched at startup) — the same crate as the
+   CLI/API, running in your browser, fully offline;
+2. **Rust REST API** (`POST /api/calculate`) when wasm isn't available;
+3. a TypeScript mirror (`frontend/src/app/services/local-engine.ts`) as the
+   last resort.
+
+The header badge shows which engine produced the numbers on screen.
 
 ## Project layout
 
@@ -51,7 +61,8 @@ engine (`frontend/src/app/services/local-engine.ts`) so the UI always works.
 src/
   lib.rs                 library root
   loan/mod.rs            the amortization engine + unit tests
-  report.rs              terminal report rendering
+  report.rs              terminal report rendering (native only)
+  wasm.rs                C-ABI exports for the WebAssembly build
   main.rs                CLI  (binary: mortgage-calc)
   bin/server.rs          REST API (binary: server, axum)
 frontend/                Angular 22 app
@@ -116,11 +127,20 @@ npm install
 npm start          # ng serve on http://localhost:4200
 ```
 
-`npm start` proxies `/api` to the Rust server on `:8080` (see
-`frontend/proxy.conf.json`), so run `cargo run --bin server` alongside it for the
-live backend. Without the backend the app still runs using the in-browser engine
-— the header badge shows whether calculations came from the **Rust API** or the
-**local engine**.
+To run the real Rust engine in the browser during development, build the wasm
+asset once (it is gitignored; CI builds it on deploy):
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo build --lib --release --target wasm32-unknown-unknown
+cp target/wasm32-unknown-unknown/release/mortgage_calculator.wasm frontend/public/engine.wasm
+```
+
+`npm start` also proxies `/api` to the Rust server on `:8080` (see
+`frontend/proxy.conf.json`), so `cargo run --bin server` gives you the HTTP
+tier. Without either, the app still works on the TypeScript fallback — the
+header badge always shows which engine produced the numbers (**Rust WASM**,
+**Rust API**, or **Local engine**).
 
 Other commands:
 

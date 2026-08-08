@@ -132,7 +132,10 @@ export class BalanceChartComponent {
     const step = totalYears > 15 ? 5 : totalYears > 8 ? 2 : 1;
     const ticks: { label: string; x: number }[] = [];
     for (let year = 0; year <= totalYears; year += step) {
-      ticks.push({ label: `${year}y`, x: this.xFor(Math.max(1, year * 12)) });
+      // "Ny" marks the point after N*12 payments; payment m sits at offset
+      // m-1, so N years elapsed corresponds to month N*12 + 1.
+      const month = Math.min(year * 12 + 1, this.totalMonths());
+      ticks.push({ label: `${year}y`, x: this.xFor(month) });
     }
     return ticks;
   });
