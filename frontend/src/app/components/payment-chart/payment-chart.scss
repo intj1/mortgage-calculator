@@ -1,0 +1,112 @@
+:host {
+  display: block;
+}
+
+.chart {
+  position: relative;
+}
+
+.chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.key__swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  opacity: 0.75;
+}
+
+.chart__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: none;
+}
+
+.grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.axis-label {
+  fill: var(--text-subtle);
+  font-size: 10px;
+}
+.axis-label--y { text-anchor: end; }
+.axis-label--x { text-anchor: middle; }
+
+.band {
+  fill-opacity: 0.62;
+  stroke: none;
+}
+
+.milestone {
+  stroke: var(--brand);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.milestone-label {
+  fill: var(--brand);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.crosshair {
+  stroke: var(--text-subtle);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.tooltip {
+  position: absolute;
+  top: 2.4rem;
+  right: 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  pointer-events: none;
+  min-width: 180px;
+}
+.tooltip__month {
+  color: var(--text-subtle);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.tooltip__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+}
+.tooltip__row b {
+  margin-left: auto;
+  color: var(--text);
+}
+.tooltip__row--total {
+  border-top: 1px solid var(--border);
+  padding-top: 0.3rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}

@@ -1,0 +1,69 @@
+<div class="chart">
+  <div class="chart__legend">
+    @for (b of bands(); track b.key) {
+      <span class="key"><i class="key__swatch" [style.background]="b.color"></i>{{ b.label }}</span>
+    }
+  </div>
+
+  <svg
+    [attr.viewBox]="viewBox"
+    class="chart__svg"
+    (pointermove)="onMove($event)"
+    (pointerleave)="onLeave()"
+    role="img"
+    aria-label="Monthly payment composition over the life of the loan"
+  >
+    <!-- Y gridlines + labels -->
+    @for (t of yTicks(); track t.value) {
+      <line
+        [attr.x1]="pad.left" [attr.x2]="pad.left + plotW"
+        [attr.y1]="t.y" [attr.y2]="t.y"
+        class="grid"
+      />
+      <text [attr.x]="pad.left - 8" [attr.y]="t.y + 3" class="axis-label axis-label--y">
+        {{ t.value | currency: 'USD':'symbol':'1.0-0' }}
+      </text>
+    }
+
+    <!-- X axis year labels -->
+    @for (t of xTicks(); track t.label) {
+      <text [attr.x]="t.x" [attr.y]="baseline + 18" class="axis-label axis-label--x">
+        {{ t.label }}
+      </text>
+    }
+
+    <!-- Stacked bands -->
+    @for (b of bands(); track b.key) {
+      <path [attr.d]="b.path" [attr.fill]="b.color" class="band" />
+    }
+
+    <!-- Principal-overtakes-interest milestone -->
+    @if (crossover(); as c) {
+      <line [attr.x1]="c.x" [attr.x2]="c.x" [attr.y1]="pad.top" [attr.y2]="baseline" class="milestone" />
+      <text [attr.x]="c.x + 5" [attr.y]="pad.top + 11" class="milestone-label">
+        principal overtakes interest · mo {{ c.month }}
+      </text>
+    }
+
+    <!-- Hover crosshair -->
+    @if (hover(); as h) {
+      <line [attr.x1]="h.x" [attr.x2]="h.x" [attr.y1]="pad.top" [attr.y2]="baseline" class="crosshair" />
+    }
+  </svg>
+
+  @if (hover(); as h) {
+    <div class="tooltip">
+      <span class="tooltip__month">Month {{ h.month }} · {{ (h.month / 12) | number: '1.1-1' }}y</span>
+      @for (part of h.parts; track part.label) {
+        <span class="tooltip__row">
+          <i class="dot" [style.background]="part.color"></i>{{ part.label }}
+          <b class="numeric">{{ part.value | currency: 'USD':'symbol':'1.0-0' }}</b>
+        </span>
+      }
+      <span class="tooltip__row tooltip__row--total">
+        Total
+        <b class="numeric">{{ h.total | currency: 'USD':'symbol':'1.0-0' }}</b>
+      </span>
+    </div>
+  }
+</div>

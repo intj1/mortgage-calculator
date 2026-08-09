@@ -169,9 +169,12 @@ npm test           # component/engine unit tests (vitest)
   scenario is restored from `localStorage` on the next visit.
 - Insight cards: PMI end month, **discount-points break-even** time, and a
   **rate-sensitivity** (±0.5%) comparison.
-- Hand-built **SVG charts** (no charting dependency): a payment-breakdown donut
-  and an interactive balance/interest curve with hover crosshair, an early
-  **payoff marker**, and a dashed **"without extra payments" baseline** overlay.
+- Hand-built **SVG charts** (no charting dependency): a payment-breakdown donut,
+  an interactive balance/interest curve with hover crosshair, an early
+  **payoff marker**, a dashed **"without extra payments" baseline** overlay, and
+  a **stacked payment-composition chart** showing where every payment goes over
+  the life of the loan — with PMI drop-off and the
+  **principal-overtakes-interest** milestone marked.
 - **CSV export** of the full monthly amortization schedule.
 - Light/dark theme with system-preference detection, persisted to
   `localStorage`.
