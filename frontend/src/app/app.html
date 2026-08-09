@@ -76,6 +76,15 @@
             <h2 class="chart-card__title">Where each payment goes</h2>
             <app-payment-chart [result]="r" />
           </div>
+
+          <div class="card chart-card chart-card--full">
+            <h2 class="chart-card__title">Equity over time</h2>
+            <app-equity-chart [result]="r" [appreciationPercent]="currentForm().appreciationPercent" />
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <app-refinance-panel [result]="r" />
         </div>
 
         <div class="card table-card">

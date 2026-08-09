@@ -32,10 +32,19 @@
       </text>
     }
 
+    <defs>
+      <!-- Lump-sum spikes exceed the y-scale by design; clip them to the plot. -->
+      <clipPath id="pc-plot-clip">
+        <rect [attr.x]="pad.left" [attr.y]="pad.top" [attr.width]="plotW" [attr.height]="plotH" />
+      </clipPath>
+    </defs>
+
     <!-- Stacked bands -->
-    @for (b of bands(); track b.key) {
-      <path [attr.d]="b.path" [attr.fill]="b.color" class="band" />
-    }
+    <g clip-path="url(#pc-plot-clip)">
+      @for (b of bands(); track b.key) {
+        <path [attr.d]="b.path" [attr.fill]="b.color" class="band" />
+      }
+    </g>
 
     <!-- Principal-overtakes-interest milestone -->
     @if (crossover(); as c) {

@@ -17,8 +17,10 @@ function money(v: number): string {
 }
 
 function months(v: number): string {
-  const y = Math.floor(Math.abs(v) / 12);
-  const m = Math.round(Math.abs(v) % 12);
+  // Round to whole months first so 59.5 can't render as "4y 12m".
+  const total = Math.round(Math.abs(v));
+  const y = Math.floor(total / 12);
+  const m = total % 12;
   const sign = v < 0 ? '−' : '';
   if (y === 0) return `${sign}${m}mo`;
   return m === 0 ? `${sign}${y}y` : `${sign}${y}y ${m}m`;

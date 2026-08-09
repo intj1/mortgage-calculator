@@ -14,6 +14,8 @@ const INPUT = {
   hoa_monthly: 0,
   pmi_annual_rate: 0,
   extra_monthly_payment: 0,
+  lump_sum: 0,
+  lump_sum_month: 0,
 };
 
 describe('scheduleToCsv', () => {

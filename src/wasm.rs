@@ -18,6 +18,16 @@ thread_local! {
     static RESULT: RefCell<Vec<u8>> = const { RefCell::new(Vec::new()) };
 }
 
+/// ABI version of this module. The JS loader refuses to use a wasm build
+/// whose version doesn't match, so a stale engine.wasm can never silently
+/// ignore newer input fields (serde skips unknown/missing keys).
+pub const ABI_VERSION: u32 = 2;
+
+#[no_mangle]
+pub extern "C" fn abi_version() -> u32 {
+    ABI_VERSION
+}
+
 /// Allocate `len` bytes inside wasm linear memory for the caller to fill.
 #[no_mangle]
 pub extern "C" fn wasm_alloc(len: usize) -> *mut u8 {

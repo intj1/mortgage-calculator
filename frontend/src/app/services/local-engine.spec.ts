@@ -15,6 +15,8 @@ function baseInput(overrides: Partial<MortgageInput> = {}): MortgageInput {
     hoa_monthly: 0,
     pmi_annual_rate: 0,
     extra_monthly_payment: 0,
+    lump_sum: 0,
+    lump_sum_month: 0,
     ...overrides,
   };
 }
@@ -45,6 +47,16 @@ describe('local mortgage engine', () => {
     );
     expect(schedule[0].pmi).toBeGreaterThan(0);
     expect(schedule.some((p) => p.pmi === 0)).toBe(true);
+  });
+
+  it('a lump sum shortens the loan and lands in its month', () => {
+    const plain = calculateLocally(baseInput());
+    const { summary, schedule } = calculateLocally(
+      baseInput({ lump_sum: 50_000, lump_sum_month: 12 }),
+    );
+    expect(summary.payoff_month).toBeLessThan(plain.summary.payoff_month);
+    expect(summary.interest_saved).toBeGreaterThan(0);
+    expect(schedule[11].extra_principal).toBeCloseTo(50_000, 6);
   });
 
   it('buys the rate down with points', () => {

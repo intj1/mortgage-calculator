@@ -17,6 +17,9 @@ const PARAM_KEYS: ReadonlyArray<[param: string, key: keyof FormModel]> = [
   ['hoa', 'hoaMonthly'],
   ['pmi', 'pmiRatePercent'],
   ['x', 'extraMonthlyPayment'],
+  ['ls', 'lumpSum'],
+  ['lsm', 'lumpSumMonth'],
+  ['ap', 'appreciationPercent'],
   ['sd', 'startMonth'],
 ];
 

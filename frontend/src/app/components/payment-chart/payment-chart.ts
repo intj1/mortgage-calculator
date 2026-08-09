@@ -59,6 +59,7 @@ export class PaymentChartComponent {
   readonly viewBox = `0 0 ${W} ${H}`;
   readonly pad = PAD;
   readonly plotW = PLOT_W;
+  readonly plotH = PLOT_H;
   readonly baseline = PAD.top + PLOT_H;
 
   readonly hoverIndex = signal<number | null>(null);
@@ -68,7 +69,13 @@ export class PaymentChartComponent {
   );
 
   private readonly maxY = computed(() => {
-    const max = Math.max(...this.result().schedule.map((p) => p.total_payment), 0);
+    const { schedule, input } = this.result();
+    // A lump-sum month would blow out the y-scale and squash every other
+    // month; scale to the regular payments and let the spike clip.
+    const lumpMonth = input.lump_sum > 0 ? input.lump_sum_month : 0;
+    const regular = schedule.filter((p) => p.month !== lumpMonth);
+    const base = regular.length ? regular : schedule;
+    const max = Math.max(...base.map((p) => p.total_payment), 0);
     return max * 1.06 || 1;
   });
 

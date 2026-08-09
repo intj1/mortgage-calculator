@@ -132,6 +132,12 @@ pub struct MortgageInput {
     /// Extra principal paid every month on top of the scheduled payment.
     #[serde(default)]
     pub extra_monthly_payment: f64,
+    /// A one-time lump-sum principal payment (e.g. a bonus or tax refund).
+    #[serde(default)]
+    pub lump_sum: f64,
+    /// The month (1-based) in which the lump sum is paid. 0 disables it.
+    #[serde(default)]
+    pub lump_sum_month: u32,
 }
 
 impl Default for MortgageInput {
@@ -147,6 +153,8 @@ impl Default for MortgageInput {
             hoa_monthly: 0.0,
             pmi_annual_rate: 0.0,
             extra_monthly_payment: 0.0,
+            lump_sum: 0.0,
+            lump_sum_month: 0,
         }
     }
 }
@@ -193,6 +201,7 @@ impl Loan {
             ("hoa_monthly", input.hoa_monthly),
             ("pmi_annual_rate", input.pmi_annual_rate),
             ("extra_monthly_payment", input.extra_monthly_payment),
+            ("lump_sum", input.lump_sum),
         ] {
             if value < 0.0 {
                 return Err(LoanError::NegativeAmount { field, value });
@@ -279,6 +288,9 @@ impl Loan {
                 principal = 0.0; // guards against pathological inputs
             }
             let mut extra = self.input.extra_monthly_payment;
+            if self.input.lump_sum_month == month {
+                extra += self.input.lump_sum;
+            }
             if principal + extra > balance {
                 // Final payment: only pay what remains.
                 let owed = balance;
@@ -365,10 +377,13 @@ impl Loan {
         let pi = self.monthly_principal_and_interest();
         let first_pmi = schedule.first().map(|p| p.pmi).unwrap_or(0.0);
 
-        // Interest saved by extra payments = interest on the same loan with no extra.
-        let baseline_interest = if self.input.extra_monthly_payment > 0.0 {
+        // Interest saved by extra/lump payments = interest with neither.
+        let has_prepayments =
+            self.input.extra_monthly_payment > 0.0 || self.input.lump_sum > 0.0;
+        let baseline_interest = if has_prepayments {
             let mut baseline = self.input.clone();
             baseline.extra_monthly_payment = 0.0;
+            baseline.lump_sum = 0.0;
             Loan::new(baseline)
                 .map(|l| l.amortization_schedule().iter().map(|p| p.interest).sum())
                 .unwrap_or(total_interest)
@@ -566,6 +581,30 @@ mod tests {
         assert!(interest > 0.0 && principal > 0.0);
         let full = loan.summary();
         assert!(interest < full.total_interest);
+    }
+
+    #[test]
+    fn lump_sum_shortens_the_loan_and_saves_interest() {
+        let plain = Loan::new(base_input()).unwrap().summary();
+        let with_lump = Loan::new(MortgageInput {
+            lump_sum: 50_000.0,
+            lump_sum_month: 12,
+            ..base_input()
+        })
+        .unwrap();
+        let summary = with_lump.summary();
+        assert!(summary.payoff_month < plain.payoff_month);
+        assert!(summary.interest_saved > 0.0);
+        // Principal paid still totals the loan amount.
+        let total_principal: f64 = with_lump
+            .amortization_schedule()
+            .iter()
+            .map(|p| p.principal + p.extra_principal)
+            .sum();
+        assert!((total_principal - with_lump.loan_amount()).abs() < 0.5);
+        // The lump month carries the extra principal.
+        let lump_row = with_lump.payment_for_month(12).unwrap();
+        assert!((lump_row.extra_principal - 50_000.0).abs() < 1e-6);
     }
 
     #[test]

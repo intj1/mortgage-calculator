@@ -59,6 +59,9 @@ export class InputFormComponent implements OnDestroy {
     { key: 'hoaMonthly', label: 'HOA / mo', min: 0, max: 2_000, step: 25, kind: 'currency' },
     { key: 'pmiRatePercent', label: 'PMI rate / yr', min: 0, max: 2, step: 0.05, kind: 'percent', hint: 'Drops off at 80% LTV' },
     { key: 'extraMonthlyPayment', label: 'Extra payment / mo', min: 0, max: 5_000, step: 50, kind: 'currency' },
+    { key: 'lumpSum', label: 'One-time lump sum', min: 0, max: 500_000, step: 1_000, kind: 'currency', hint: 'extra principal paid once' },
+    { key: 'lumpSumMonth', label: 'Lump sum in month', min: 1, max: 360, step: 1, kind: 'plain', hint: 'payment # it lands on' },
+    { key: 'appreciationPercent', label: 'Appreciation / yr', min: 0, max: 10, step: 0.1, kind: 'percent', hint: 'drives the equity chart' },
   ];
 
   /** Percentage of the home price currently covered by the down payment. */

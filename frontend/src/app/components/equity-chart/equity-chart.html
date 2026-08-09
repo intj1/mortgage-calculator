@@ -1,0 +1,49 @@
+<div class="chart">
+  <div class="chart__legend">
+    <span class="key"><i class="key__line key__line--value"></i>Home value
+      ({{ appreciationPercent() | number: '1.0-1' }}%/yr)</span>
+    <span class="key"><i class="key__line key__line--balance"></i>Loan balance</span>
+    <span class="key"><i class="key__swatch"></i>Equity</span>
+  </div>
+
+  <svg
+    [attr.viewBox]="viewBox"
+    class="chart__svg"
+    (pointermove)="onMove($event)"
+    (pointerleave)="onLeave()"
+    role="img"
+    aria-label="Home equity over time"
+  >
+    @for (t of yTicks(); track t.value) {
+      <line [attr.x1]="pad.left" [attr.x2]="pad.left + plotW" [attr.y1]="t.y" [attr.y2]="t.y" class="grid" />
+      <text [attr.x]="pad.left - 8" [attr.y]="t.y + 3" class="axis-label axis-label--y">
+        {{ t.value | currency: 'USD':'symbol':'1.0-0' }}
+      </text>
+    }
+    @for (t of xTicks(); track t.label) {
+      <text [attr.x]="t.x" [attr.y]="baseline + 18" class="axis-label axis-label--x">{{ t.label }}</text>
+    }
+
+    <path [attr.d]="equityArea()" class="equity-fill" />
+    <path [attr.d]="valueLine()" class="line line--value" />
+    <path [attr.d]="balanceLine()" class="line line--balance" />
+
+    @if (hover(); as h) {
+      <line [attr.x1]="h.x" [attr.x2]="h.x" [attr.y1]="pad.top" [attr.y2]="baseline" class="crosshair" />
+      <circle [attr.cx]="h.x" [attr.cy]="h.valueY" r="4" class="marker marker--value" />
+      <circle [attr.cx]="h.x" [attr.cy]="h.balanceY" r="4" class="marker marker--balance" />
+    }
+  </svg>
+
+  @if (hover(); as h) {
+    <div class="tooltip">
+      <span class="tooltip__month">Month {{ h.month }} · {{ (h.month / 12) | number: '1.1-1' }}y</span>
+      <span class="tooltip__row"><i class="dot dot--value"></i>Home value
+        <b class="numeric">{{ h.value | currency: 'USD':'symbol':'1.0-0' }}</b></span>
+      <span class="tooltip__row"><i class="dot dot--balance"></i>Balance
+        <b class="numeric">{{ h.balance | currency: 'USD':'symbol':'1.0-0' }}</b></span>
+      <span class="tooltip__row tooltip__row--total">Equity
+        <b class="numeric">{{ h.equity | currency: 'USD':'symbol':'1.0-0' }}</b></span>
+    </div>
+  }
+</div>
