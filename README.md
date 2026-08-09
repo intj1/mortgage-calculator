@@ -164,6 +164,13 @@ npm test           # component/engine unit tests (vitest)
   max home price that fits (with one click to apply it).
 - **Biweekly quick-set** — one click adds the "13th payment" equivalent
   (P&amp;I ÷ 12) as a monthly extra payment.
+- **One-time lump sum** — model a bonus/tax-refund principal payment in any
+  month (supported natively by the Rust engine and the CLI via
+  `--lump`/`--lump-month`).
+- **Equity over time chart** — projected home value at an assumed appreciation
+  rate vs the loan balance, with your equity shaded between them.
+- **Refinance analyzer** — payments made + new rate/term/closing costs →
+  payment delta, break-even month, and honest lifetime-interest impact.
 - **Shareable scenarios** — loan inputs are encoded in the URL
   (`?hp=500000&r=5.5&x=300`), a Share button copies the link, and the last
   scenario is restored from `localStorage` on the next visit.

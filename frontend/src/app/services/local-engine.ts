@@ -51,6 +51,9 @@ function buildSchedule(input: MortgageInput): Payment[] {
 
     let principal = Math.max(0, basePayment - interest);
     let extra = input.extra_monthly_payment;
+    if (input.lump_sum_month === month) {
+      extra += input.lump_sum;
+    }
     if (principal + extra > balance) {
       if (principal > balance) {
         principal = balance;
@@ -100,8 +103,8 @@ function summarize(input: MortgageInput, schedule: Payment[]): MortgageSummary {
   const amount = loanAmount(input);
 
   let baselineInterest = totalInterest;
-  if (input.extra_monthly_payment > 0) {
-    const baseline = buildSchedule({ ...input, extra_monthly_payment: 0 });
+  if (input.extra_monthly_payment > 0 || input.lump_sum > 0) {
+    const baseline = buildSchedule({ ...input, extra_monthly_payment: 0, lump_sum: 0 });
     baselineInterest = baseline.reduce((a, p) => a + p.interest, 0);
   }
 

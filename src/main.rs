@@ -54,6 +54,14 @@ struct Cli {
     #[arg(long, default_value_t = 0.0)]
     extra: f64,
 
+    /// One-time lump-sum principal payment in dollars.
+    #[arg(long = "lump", default_value_t = 0.0)]
+    lump_sum: f64,
+
+    /// Month (1-based) in which the lump sum is paid.
+    #[arg(long = "lump-month", default_value_t = 0)]
+    lump_sum_month: u32,
+
     /// Print the full amortization schedule (otherwise only a summary).
     #[arg(long)]
     schedule: bool,
@@ -90,6 +98,8 @@ fn main() {
         hoa_monthly: cli.hoa,
         pmi_annual_rate: cli.pmi / 100.0,
         extra_monthly_payment: cli.extra,
+        lump_sum: cli.lump_sum,
+        lump_sum_month: cli.lump_sum_month,
     };
 
     let loan = match Loan::new(input) {

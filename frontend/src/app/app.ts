@@ -7,6 +7,8 @@ import { BalanceChartComponent } from './components/balance-chart/balance-chart'
 import { AmortizationTableComponent } from './components/amortization-table/amortization-table';
 import { CompareStripComponent } from './components/compare-strip/compare-strip';
 import { PaymentChartComponent } from './components/payment-chart/payment-chart';
+import { EquityChartComponent } from './components/equity-chart/equity-chart';
+import { RefinancePanelComponent } from './components/refinance-panel/refinance-panel';
 
 import { MortgageService } from './services/mortgage.service';
 import { ThemeService } from './services/theme.service';
@@ -34,6 +36,8 @@ import {
     AmortizationTableComponent,
     CompareStripComponent,
     PaymentChartComponent,
+    EquityChartComponent,
+    RefinancePanelComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

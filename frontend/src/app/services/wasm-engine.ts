@@ -15,12 +15,20 @@ import { MortgageInput, MortgageResult } from '../models/mortgage.models';
 
 interface EngineExports {
   memory: WebAssembly.Memory;
+  abi_version(): number;
   wasm_alloc(len: number): number;
   wasm_free(ptr: number, len: number): void;
   calculate(ptr: number, len: number): number;
   result_ptr(): number;
   result_len(): number;
 }
+
+/**
+ * Must match ABI_VERSION in src/wasm.rs. Serde ignores unknown/missing JSON
+ * fields, so without this check a stale engine.wasm would silently drop newer
+ * inputs (e.g. lump-sum payments) while claiming to be the Rust engine.
+ */
+const EXPECTED_ABI_VERSION = 2;
 
 let enginePromise: Promise<EngineExports | null> | null = null;
 
@@ -40,8 +48,15 @@ async function instantiate(): Promise<EngineExports | null> {
     if (
       typeof exports.calculate !== 'function' ||
       typeof exports.wasm_alloc !== 'function' ||
+      typeof exports.abi_version !== 'function' ||
       !(exports.memory instanceof WebAssembly.Memory)
     ) {
+      return null;
+    }
+    if (exports.abi_version() !== EXPECTED_ABI_VERSION) {
+      console.warn(
+        `engine.wasm ABI ${exports.abi_version()} != expected ${EXPECTED_ABI_VERSION}; ignoring stale engine`,
+      );
       return null;
     }
     return exports;

@@ -1,0 +1,93 @@
+<div class="head">
+  <h2 class="head__title">Should I refinance?</h2>
+  <span class="head__sub">P&amp;I comparison — escrow continues either way</span>
+</div>
+
+<div class="inputs">
+  <label class="input">
+    <span class="input__label">Payments made</span>
+    <span class="input__box">
+      <input type="number" min="0" max="600" step="1" [value]="monthsPaid()" (input)="set('monthsPaid', $event)" class="numeric" />
+      <span class="input__unit">mo</span>
+    </span>
+  </label>
+  <label class="input">
+    <span class="input__label">New rate</span>
+    <span class="input__box">
+      <input type="number" min="0" max="15" step="0.05" [value]="newRatePercent()" (input)="set('newRatePercent', $event)" class="numeric" />
+      <span class="input__unit">%</span>
+    </span>
+  </label>
+  <label class="input">
+    <span class="input__label">New term</span>
+    <span class="input__box">
+      <input type="number" min="1" max="40" step="1" [value]="newTermYears()" (input)="set('newTermYears', $event)" class="numeric" />
+      <span class="input__unit">yr</span>
+    </span>
+  </label>
+  <label class="input">
+    <span class="input__label">Closing costs</span>
+    <span class="input__box">
+      <span class="input__unit">$</span>
+      <input type="number" min="0" max="100000" step="500" [value]="closingCosts()" (input)="set('closingCosts', $event)" class="numeric" />
+    </span>
+  </label>
+</div>
+
+@if (analysis(); as a) {
+  <div class="results">
+    <div class="metric">
+      <span class="metric__label">Refinanced balance</span>
+      <span class="metric__value numeric">{{ a.newLoanAmount | currency: 'USD':'symbol':'1.0-0' }}</span>
+      <span class="metric__sub">{{ a.balanceAtRefi | currency: 'USD':'symbol':'1.0-0' }} owed + costs rolled in</span>
+    </div>
+
+    <div class="metric">
+      <span class="metric__label">Monthly P&amp;I</span>
+      <span class="metric__value numeric">
+        {{ a.oldPayment | currency: 'USD':'symbol':'1.0-0' }}
+        <span class="metric__arrow">→</span>
+        {{ a.newPayment | currency: 'USD':'symbol':'1.0-0' }}
+      </span>
+      <span
+        class="metric__sub"
+        [class.metric__sub--good]="a.monthlySavings > 0"
+        [class.metric__sub--bad]="a.monthlySavings < 0"
+      >
+        {{ a.monthlySavings > 0 ? 'saves' : 'costs' }}
+        {{ (a.monthlySavings < 0 ? -a.monthlySavings : a.monthlySavings) | currency: 'USD':'symbol':'1.0-0' }}/mo
+      </span>
+    </div>
+
+    <div class="metric">
+      <span class="metric__label">Break-even</span>
+      @if (breakEven(); as be) {
+        <span class="metric__value numeric">
+          @if (be.years) { {{ be.years }}<span class="unit">y</span> }
+          {{ be.rem }}<span class="unit">m</span>
+        </span>
+        <span class="metric__sub">to recoup closing costs</span>
+      } @else {
+        <span class="metric__value metric__value--muted">never</span>
+        <span class="metric__sub">the new payment is higher</span>
+      }
+    </div>
+
+    <div class="metric">
+      <span class="metric__label">Lifetime interest impact</span>
+      <span
+        class="metric__value numeric"
+        [class.metric__value--good]="a.lifetimeSavings > 0"
+        [class.metric__value--bad]="a.lifetimeSavings < 0"
+      >
+        {{ a.lifetimeSavings > 0 ? '−' : '+' }}{{ (a.lifetimeSavings < 0 ? -a.lifetimeSavings : a.lifetimeSavings) | currency: 'USD':'symbol':'1.0-0' }}
+      </span>
+      <span class="metric__sub">
+        {{ a.oldRemainingInterest | currency: 'USD':'symbol':'1.0-0' }} left vs
+        {{ a.newTotalInterest | currency: 'USD':'symbol':'1.0-0' }} new + costs
+      </span>
+    </div>
+  </div>
+} @else {
+  <p class="empty">Enter a point before the loan is paid off to analyze a refinance.</p>
+}

@@ -16,6 +16,9 @@ describe('share link codec', () => {
       hoaMonthly: 150,
       pmiRatePercent: 0.6,
       extraMonthlyPayment: 250,
+      lumpSum: 20_000,
+      lumpSumMonth: 36,
+      appreciationPercent: 4,
       startMonth: '2027-03',
     };
     const decoded = decodeShareParams('?' + encodeShareParams(form));

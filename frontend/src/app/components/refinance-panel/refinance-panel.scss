@@ -1,0 +1,118 @@
+:host {
+  display: block;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+.head__title {
+  font-size: 1.05rem;
+}
+.head__sub {
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+}
+
+.inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.4rem;
+  margin-bottom: 1.1rem;
+}
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.input__label {
+  font-size: 0.78rem;
+  font-weight: 550;
+  color: var(--text-muted);
+}
+.input__box {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.55rem;
+}
+.input__box:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.input__box input {
+  width: 5rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-align: right;
+  outline: none;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.input__box input::-webkit-outer-spin-button,
+.input__box input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.input__unit {
+  color: var(--text-subtle);
+  font-size: 0.82rem;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.9rem;
+}
+.metric {
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.metric__label {
+  font-size: 0.75rem;
+  font-weight: 550;
+  color: var(--text-muted);
+}
+.metric__value {
+  font-size: 1.25rem;
+  font-weight: 680;
+  color: var(--text);
+}
+.metric__value--muted { color: var(--text-subtle); }
+.metric__value--good { color: var(--c-extra); }
+.metric__value--bad { color: var(--c-pmi); }
+.metric__arrow {
+  font-size: 0.85rem;
+  color: var(--text-subtle);
+  margin: 0 0.15rem;
+}
+.unit {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.metric__sub {
+  font-size: 0.72rem;
+  color: var(--text-subtle);
+}
+.metric__sub--good { color: var(--c-extra); font-weight: 600; }
+.metric__sub--bad { color: var(--c-pmi); font-weight: 600; }
+
+.empty {
+  margin: 0;
+  color: var(--text-subtle);
+  font-size: 0.85rem;
+}

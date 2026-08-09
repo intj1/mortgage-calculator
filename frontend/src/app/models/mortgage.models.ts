@@ -22,6 +22,10 @@ export interface MortgageInput {
   /** Annual PMI rate as a fraction of the balance, e.g. 0.006. */
   pmi_annual_rate: number;
   extra_monthly_payment: number;
+  /** One-time lump-sum principal payment. */
+  lump_sum: number;
+  /** Month (1-based) the lump sum is paid; 0 disables it. */
+  lump_sum_month: number;
 }
 
 export interface Payment {
@@ -95,6 +99,12 @@ export interface FormModel {
   hoaMonthly: number;
   pmiRatePercent: number;
   extraMonthlyPayment: number;
+  /** One-time lump-sum principal payment in dollars (0 = none). */
+  lumpSum: number;
+  /** Month number (1-based) the lump sum is paid. */
+  lumpSumMonth: number;
+  /** Assumed annual home appreciation in percent (equity chart only). */
+  appreciationPercent: number;
   /** First payment month as 'YYYY-MM' (display only — not sent to the engine). */
   startMonth: string;
 }
@@ -110,6 +120,9 @@ export const DEFAULT_FORM: FormModel = {
   hoaMonthly: 0,
   pmiRatePercent: 0.5,
   extraMonthlyPayment: 0,
+  lumpSum: 0,
+  lumpSumMonth: 12,
+  appreciationPercent: 3,
   startMonth: new Date().toISOString().slice(0, 7),
 };
 
@@ -153,6 +166,9 @@ export function sanitizeForm(raw: Partial<Record<keyof FormModel, unknown>>): Fo
     hoaMonthly: num(raw.hoaMonthly, DEFAULT_FORM.hoaMonthly, 100_000),
     pmiRatePercent: num(raw.pmiRatePercent, DEFAULT_FORM.pmiRatePercent, 10),
     extraMonthlyPayment: num(raw.extraMonthlyPayment, DEFAULT_FORM.extraMonthlyPayment, 1_000_000),
+    lumpSum: num(raw.lumpSum, DEFAULT_FORM.lumpSum, 10_000_000),
+    lumpSumMonth: Math.round(num(raw.lumpSumMonth, DEFAULT_FORM.lumpSumMonth, 600)),
+    appreciationPercent: num(raw.appreciationPercent, DEFAULT_FORM.appreciationPercent, 20),
     startMonth:
       typeof raw.startMonth === 'string' && START_MONTH_RE.test(raw.startMonth)
         ? raw.startMonth
@@ -160,6 +176,7 @@ export function sanitizeForm(raw: Partial<Record<keyof FormModel, unknown>>): Fo
   };
   form.downPayment = Math.min(form.downPayment, form.homePrice);
   if (form.termYears === 0) form.termYears = DEFAULT_FORM.termYears;
+  if (form.homePrice === 0) form.homePrice = DEFAULT_FORM.homePrice;
   return form;
 }
 
@@ -187,5 +204,7 @@ export function formToInput(f: FormModel): MortgageInput {
     hoa_monthly: f.hoaMonthly,
     pmi_annual_rate: f.pmiRatePercent / 100,
     extra_monthly_payment: f.extraMonthlyPayment,
+    lump_sum: f.lumpSum,
+    lump_sum_month: f.lumpSum > 0 ? Math.max(1, Math.round(f.lumpSumMonth)) : 0,
   };
 }
