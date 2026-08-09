@@ -175,7 +175,10 @@ export function formToInput(f: FormModel): MortgageInput {
 
   return {
     home_price: f.homePrice,
-    down_payment: f.downPayment,
+    // Clamp here, at the calculation boundary, rather than inside the form —
+    // clamping form state while the user is mid-keystroke (price briefly "4")
+    // would permanently destroy their down payment.
+    down_payment: Math.min(f.downPayment, f.homePrice),
     annual_rate: f.ratePercent / 100,
     term,
     points: f.points,

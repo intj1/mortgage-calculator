@@ -142,6 +142,9 @@
   padding: 1.2rem 1.3rem;
   min-width: 0;
 }
+.chart-card--full {
+  grid-column: 1 / -1;
+}
 .chart-card__title {
   font-size: 0.95rem;
   color: var(--text);

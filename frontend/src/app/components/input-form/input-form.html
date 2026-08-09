@@ -46,6 +46,7 @@
             [step]="f.step"
             [value]="value(f.key)"
             (input)="onInput(f.key, $event)"
+            (blur)="onBlur(f.key, $event)"
             class="numeric"
           />
           @if (f.kind === 'percent') { <span class="adorn adorn--suffix">%</span> }

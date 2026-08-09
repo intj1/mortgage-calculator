@@ -51,7 +51,7 @@ export class InputFormComponent implements OnDestroy {
   /** Sliders + number inputs are generated from this config. */
   readonly fields: FieldConfig[] = [
     { key: 'homePrice', label: 'Home price', min: 50_000, max: 3_000_000, step: 5_000, kind: 'currency' },
-    { key: 'downPayment', label: 'Down payment', min: 0, max: 1_500_000, step: 5_000, kind: 'currency' },
+    { key: 'downPayment', label: 'Down payment', min: 0, max: 3_000_000, step: 5_000, kind: 'currency' },
     { key: 'ratePercent', label: 'Interest rate', min: 0, max: 15, step: 0.05, kind: 'percent' },
     { key: 'points', label: 'Discount points', min: 0, max: 4, step: 0.25, kind: 'plain', hint: '1 pt = 1% of loan, −0.25% rate' },
     { key: 'propertyTaxAnnual', label: 'Property tax / yr', min: 0, max: 60_000, step: 250, kind: 'currency' },
@@ -108,7 +108,15 @@ export class InputFormComponent implements OnDestroy {
   onInput(key: keyof FormModel, event: Event): void {
     const el = event.target as HTMLInputElement;
     const n = el.valueAsNumber;
-    this.patch({ [key]: Number.isFinite(n) ? n : 0 });
+    // Ignore transient empty/partial states while typing; blur re-syncs.
+    if (!Number.isFinite(n) || n < 0) return;
+    this.patch({ [key]: n });
+  }
+
+  /** After editing ends, make the box reflect the model again (e.g. it was
+   *  left empty, or the browser kept a partial value). */
+  onBlur(key: keyof FormModel, event: Event): void {
+    (event.target as HTMLInputElement).value = String(this.model()[key]);
   }
 
   setTerm(years: number): void {
@@ -139,11 +147,9 @@ export class InputFormComponent implements OnDestroy {
   }
 
   private patch(partial: Partial<FormModel>): void {
-    this.model.update((m) => {
-      const next = { ...m, ...partial };
-      next.downPayment = Math.min(next.downPayment, next.homePrice);
-      return next;
-    });
+    // No down-payment clamping here: form state must survive partial typing
+    // (formToInput clamps at the calculation boundary instead).
+    this.model.update((m) => ({ ...m, ...partial }));
     if (this.emitTimer !== null) clearTimeout(this.emitTimer);
     this.emitTimer = setTimeout(() => this.valueChange.emit(this.model()), 120);
   }
