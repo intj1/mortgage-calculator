@@ -73,7 +73,12 @@
 .table thead th {
   position: sticky;
   top: 0;
-  background: var(--bg-sunken);
+  /* --bg-sunken is translucent in the dark theme; a sticky header needs an
+     opaque background or scrolled rows show through. Layer the tint over
+     the opaque card color. */
+  background:
+    linear-gradient(var(--bg-sunken), var(--bg-sunken)),
+    var(--bg-elevated);
   color: var(--text-muted);
   font-weight: 600;
   text-align: right;
